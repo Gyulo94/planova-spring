@@ -12,9 +12,11 @@ import com.planova.server.global.error.ErrorCode;
 import com.planova.server.global.exception.ApiException;
 import com.planova.server.user.entity.User;
 import com.planova.server.user.repository.UserRepository;
+import com.planova.server.user.request.ResetPasswordRequest;
 import com.planova.server.user.request.UserRequest;
 import com.planova.server.user.response.UserResponse;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -57,6 +59,37 @@ public class UserServiceImpl implements UserService {
     redisTemplate.delete(token);
 
     return response;
+  }
+
+  /**
+   * 비밀번호 재설정
+   * 
+   * @param ResetPasswordRequest (String email, String token, String password)
+   * @return String (String message)
+   *         - message: "비밀번호가 성공적으로 변경되었습니다. 다시 로그인을 해주세요."
+   */
+  @Transactional
+  @Override
+  public String resetPassword(ResetPasswordRequest request) {
+    String email = request.getEmail();
+    String token = request.getToken();
+    String newPassword = request.getPassword();
+    User user = userRepository.findByEmail(email);
+
+    if (user == null) {
+      throw new ApiException(ErrorCode.USER_NOT_FOUND);
+    }
+
+    if (passwordEncoder.matches(newPassword, user.getPassword())) {
+      throw new ApiException(ErrorCode.SAME_PASSWORD);
+    }
+
+    String encodedPassword = passwordEncoder.encode(newPassword);
+    user.updatePassword(encodedPassword);
+    redisTemplate.delete(token);
+
+    LOGGER.info("비밀번호 재설정 완료. Email: {}", email);
+    return null;
   }
 
   /**

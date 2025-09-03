@@ -3,6 +3,7 @@ package com.planova.server.user.service;
 import java.util.UUID;
 
 import com.planova.server.user.entity.User;
+import com.planova.server.user.request.ResetPasswordRequest;
 import com.planova.server.user.request.UserRequest;
 import com.planova.server.user.response.UserResponse;
 
@@ -26,6 +27,15 @@ public interface UserService {
    *         LocalDateTime createdAt)
    */
   User findByEmail(String email);
+
+  /**
+   * 비밀번호 재설정
+   * 
+   * @param ResetPasswordRequest (String email, String token, String password)
+   * @return String (String message)
+   *         - message: "비밀번호가 성공적으로 변경되었습니다. 다시 로그인을 해주세요."
+   */
+  String resetPassword(ResetPasswordRequest request);
 
   /**
    * 유저 엔터티 반환 메서드 (공개)

@@ -18,6 +18,7 @@ import com.planova.server.email.request.EmailRequest;
 import com.planova.server.email.service.EmailService;
 import com.planova.server.global.api.Api;
 import com.planova.server.global.message.ResponseMessage;
+import com.planova.server.user.request.ResetPasswordRequest;
 import com.planova.server.user.request.UserRequest;
 import com.planova.server.user.response.UserResponse;
 import com.planova.server.user.service.UserService;
@@ -81,6 +82,19 @@ public class AuthController {
   }
 
   /**
+   * 비밀번호 재설정
+   * 
+   * @param ResetPasswordRequest (String email, String token, String password)
+   * @return String (String message)
+   *         - message: "비밀번호가 성공적으로 변경되었습니다. 다시 로그인을 해주세요."
+   */
+  @PostMapping("/reset-password")
+  public Api<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+    userService.resetPassword(request);
+    return Api.OK(ResponseMessage.RESET_PASSWORD_SUCCESS);
+  }
+
+  /**
    * 회원가입 이메일 인증
    * 
    * @param EmailRequest (String email, String type)
@@ -91,6 +105,19 @@ public class AuthController {
   public Api<String> sendSignupEmail(@Valid @RequestBody EmailRequest request) throws MessagingException {
     emailService.sendVerificationMail(request);
     return Api.OK(ResponseMessage.SEND_EMAIL_SUCCESS);
+  }
+
+  /**
+   * 비밀번호 재설정 이메일 인증
+   * 
+   * @param EmailRequest (String email, String type)
+   * @return String (String message)
+   *         - message: "이메일을 성공적으로 보냈습니다. 링크를 통해 진행해주세요.
+   */
+  @PostMapping("/send-reset-password-email")
+  public Api<String> sendResetPasswordEmail(@Valid @RequestBody EmailRequest request) throws MessagingException {
+    String mesage = emailService.sendVerificationMail(request);
+    return Api.OK(mesage);
   }
 
   /**
