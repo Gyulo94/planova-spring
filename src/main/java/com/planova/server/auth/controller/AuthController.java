@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.planova.server.auth.request.LoginRequest;
+import com.planova.server.auth.request.SocialLoginRequest;
 import com.planova.server.auth.response.LoginResponse;
 import com.planova.server.auth.response.TokenResponse;
 import com.planova.server.auth.service.AuthService;
@@ -57,13 +58,30 @@ public class AuthController {
    * @param LoginRequest (String email, String password)
    * @return LoginResponse (user: UserResponse, serverTokens: TokenResponse)
    *         - user: UserResponse (UUID id, String name, String email, String
-   *         image, Role role, String provider, LocalDateTime createdAt)
+   *         image, String provider, LocalDateTime createdAt)
    *         - serverTokens: TokenResponse (String accessToken, String
    *         refreshToken, long expiresIn)
    */
   @PostMapping("login")
   public Api<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
     LoginResponse response = authService.login(request);
+    return Api.OK(response);
+  }
+
+  /**
+   * 소셜 로그인 (카카오, 구글)
+   * 
+   * @param SocialLoginRequest (String email, String password, String name, String
+   *                           image, String provider)
+   * @return LoginResponse (user: UserResponse, serverTokens: TokenResponse)
+   *         - user: UserResponse (UUID id, String name, String email, String
+   *         image, String provider, LocalDateTime createdAt)
+   *         - serverTokens: TokenResponse (String accessToken, String
+   *         refreshToken, long expiresIn)
+   */
+  @PostMapping("social-login")
+  public Api<LoginResponse> socialLogin(@Valid @RequestBody SocialLoginRequest request) {
+    LoginResponse response = authService.socialLogin(request);
     return Api.OK(response);
   }
 

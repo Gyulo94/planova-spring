@@ -2,6 +2,7 @@ package com.planova.server.user.service;
 
 import java.util.UUID;
 
+import com.planova.server.auth.request.SocialLoginRequest;
 import com.planova.server.user.entity.User;
 import com.planova.server.user.request.ResetPasswordRequest;
 import com.planova.server.user.request.UserRequest;
@@ -41,4 +42,17 @@ public interface UserService {
    * 유저 엔터티 반환 메서드 (공개)
    */
   User getUserEntityById(UUID id);
+
+  /**
+   * 소셜 로그인 회원 등록
+   * 
+   * @param SocialLoginRequest (String email, String password, String name, String
+   *                           image, String provider)
+   * @return LoginResponse (user: UserResponse, serverTokens: TokenResponse)
+   *         - user: UserResponse (UUID id, String name, String email, String
+   *         image, String provider, LocalDateTime createdAt)
+   *         - serverTokens: TokenResponse (String accessToken, String
+   *         refreshToken, long expiresIn)
+   */
+  void socialSignup(SocialLoginRequest request);
 }

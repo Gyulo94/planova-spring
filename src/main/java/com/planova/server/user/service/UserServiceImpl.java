@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.planova.server.auth.request.SocialLoginRequest;
 import com.planova.server.global.error.ErrorCode;
 import com.planova.server.global.exception.ApiException;
 import com.planova.server.user.entity.User;
@@ -118,5 +119,34 @@ public class UserServiceImpl implements UserService {
   private User findUserEntityById(UUID id) {
     User user = userRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     return user;
+  }
+
+  /**
+   * 소셜 로그인 회원 등록
+   * 
+   * @param SocialLoginRequest (String email, String password, String name, String
+   *                           image, String provider)
+   * @return LoginResponse (user: UserResponse, serverTokens: TokenResponse)
+   *         - user: UserResponse (UUID id, String name, String email, String
+   *         image, String provider, LocalDateTime createdAt)
+   *         - serverTokens: TokenResponse (String accessToken, String
+   *         refreshToken, long expiresIn)
+   */
+  public void socialSignup(SocialLoginRequest request) {
+    String email = request.getEmail();
+    User user = userRepository.findByEmail(email);
+
+    if (user != null) {
+      throw new ApiException(ErrorCode.DUPLICATED_EMAIL);
+    }
+
+    User newUser = User.builder()
+        .name(request.getName())
+        .email(request.getEmail())
+        .image(request.getImage())
+        .provider(request.getProvider())
+        .build();
+
+    userRepository.save(newUser);
   }
 }

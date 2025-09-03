@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.planova.server.auth.request.LoginRequest;
+import com.planova.server.auth.request.SocialLoginRequest;
 import com.planova.server.auth.response.LoginResponse;
 import com.planova.server.auth.response.TokenResponse;
 import com.planova.server.global.error.ErrorCode;
@@ -63,6 +64,33 @@ public class AuthServiceImpl implements AuthService {
         .build();
     return response;
   }
+
+  /**
+   * 소셜 로그인 (카카오, 구글)
+   * 
+   * @param SocialLoginRequest (String email, String password, String name, String
+   *                           image, String provider)
+   * @return LoginResponse (user: UserResponse, serverTokens: TokenResponse)
+   *         - user: UserResponse (UUID id, String name, String email, String
+   *         image, String provider, LocalDateTime createdAt)
+   *         - serverTokens: TokenResponse (String accessToken, String
+   *         refreshToken, long expiresIn)
+   */
+  public LoginResponse socialLogin(SocialLoginRequest request) {
+    String email = request.getEmail();
+    User user = userService.findByEmail(email);
+
+    if (user == null) {
+      userService.socialSignup(request);
+    }
+    user = userService.findByEmail(email);
+    TokenResponse newTokens = generateTokens(user);
+    LoginResponse response = LoginResponse.builder()
+        .user(UserResponse.fromEntity(user))
+        .serverTokens(newTokens)
+        .build();
+    return response;
+  };
 
   /**
    * 리프레시 토큰으로 액세스 토큰 재발급
