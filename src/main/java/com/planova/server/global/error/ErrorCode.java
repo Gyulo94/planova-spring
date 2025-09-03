@@ -23,19 +23,12 @@ public enum ErrorCode implements ErrorCodeInterface {
   FORBIDDEN_RESET_PASSWORD_SOCIAL_USER(HttpStatus.FORBIDDEN.value(), "소셜 로그인 유저는 비밀번호 재설정이 불가능합니다."),
   SAME_PASSWORD(HttpStatus.BAD_REQUEST.value(), "기존 비밀번호와 동일합니다."),
 
-  ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 계좌입니다."),
-
-  BANK_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 은행입니다."),
-
-  ISSUER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 발급사입니다."),
-
-  PAYMENT_METHOD_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 결제수단입니다."),
-
   ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED.value(), "액세스 토큰이 만료되었습니다."),
   INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 토큰입니다."),
   REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED.value(), "리프레시 토큰이 없습니다."),
   INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 리프레시 토큰입니다."),
   MISSING_USER_ID(HttpStatus.UNAUTHORIZED.value(), "사용자 ID가 없습니다."),
+  REFRESH_TOKEN_CLAIMS_NOT_FOUND(HttpStatus.UNAUTHORIZED.value(), "리프레시 토큰 클레임이 없습니다."),
   INVALID_USER_ID_FORMAT(HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 사용자 ID 형식입니다.");
 
   private final Integer httpStatusCode;

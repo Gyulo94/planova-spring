@@ -1,5 +1,7 @@
 package com.planova.server.user.service;
 
+import java.util.UUID;
+
 import com.planova.server.user.entity.User;
 import com.planova.server.user.request.UserRequest;
 import com.planova.server.user.response.UserResponse;
@@ -24,4 +26,9 @@ public interface UserService {
    *         LocalDateTime createdAt)
    */
   User findByEmail(String email);
+
+  /**
+   * 유저 엔터티 반환 메서드 (공개)
+   */
+  User getUserEntityById(UUID id);
 }

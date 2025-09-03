@@ -5,10 +5,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.planova.server.auth.request.LoginRequest;
+import com.planova.server.auth.response.LoginResponse;
+import com.planova.server.auth.response.TokenResponse;
+import com.planova.server.auth.service.AuthService;
 import com.planova.server.email.request.EmailRequest;
 import com.planova.server.email.service.EmailService;
 import com.planova.server.global.api.Api;
@@ -29,6 +34,7 @@ public class AuthController {
 
   private final UserService userService;
   private final EmailService emailService;
+  private final AuthService authService;
 
   /**
    * 회원가입
@@ -41,6 +47,36 @@ public class AuthController {
   @PostMapping("signup")
   public Api<UserResponse> signup(@Valid @RequestBody UserRequest request) {
     UserResponse response = userService.signup(request);
+    return Api.OK(response);
+  }
+
+  /**
+   * 로그인
+   * 
+   * @param LoginRequest (String email, String password)
+   * @return LoginResponse (user: UserResponse, serverTokens: TokenResponse)
+   *         - user: UserResponse (UUID id, String name, String email, String
+   *         image, Role role, String provider, LocalDateTime createdAt)
+   *         - serverTokens: TokenResponse (String accessToken, String
+   *         refreshToken, long expiresIn)
+   */
+  @PostMapping("login")
+  public Api<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+    LoginResponse response = authService.login(request);
+    return Api.OK(response);
+  }
+
+  /**
+   * 리프레시 토큰으로 액세스 토큰 재발급
+   * 
+   * @param authorization Authorization 헤더에 포함된 리프레시 토큰
+   * @return 새로 발급된 액세스 토큰과 리프레시 토큰 (serverTokens: TokenResponse)
+   *         - serverTokens: TokenResponse (String accessToken, String
+   *         refreshToken, long expiresIn)
+   */
+  @PostMapping("refresh")
+  public Api<TokenResponse> refresh(@RequestHeader("Authorization") String authorization) {
+    TokenResponse response = authService.refresh(authorization);
     return Api.OK(response);
   }
 

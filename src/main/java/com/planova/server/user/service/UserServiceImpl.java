@@ -1,5 +1,7 @@
 package com.planova.server.user.service;
 
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -67,6 +69,21 @@ public class UserServiceImpl implements UserService {
   @Override
   public User findByEmail(String email) {
     User user = userRepository.findByEmail(email);
+    return user;
+  }
+
+  /**
+   * 유저 엔터티 반환 메서드 (공개)
+   */
+  public User getUserEntityById(UUID id) {
+    return findUserEntityById(id);
+  }
+
+  /**
+   * 유저 엔터티 반환 메서드 (비공개 내수용)
+   */
+  private User findUserEntityById(UUID id) {
+    User user = userRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     return user;
   }
 }
