@@ -1,5 +1,8 @@
 package com.planova.server.workspace.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +25,12 @@ import lombok.RequiredArgsConstructor;
 public class WorkspaceController {
 
   private final WorkspaceService workspaceService;
+
+  @GetMapping("all")
+  public Api<List<WorkspaceResponse>> findWorkspaces(@CurrentUser JwtPayload user) {
+    List<WorkspaceResponse> response = workspaceService.findWorkspaces(user.getId());
+    return Api.OK(response);
+  }
 
   /**
    * 워크스페이스 생성

@@ -24,11 +24,21 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   private final ImageService imageService;
   private final UserService userService;
 
+  @Override
+  public List<WorkspaceResponse> findWorkspaces(UUID userId) {
+    User user = userService.getUserEntityById(userId);
+    List<Workspace> workspaces = workspaceRepository.findAllByUser(user);
+    List<WorkspaceResponse> response = workspaces.stream()
+        .map(workspace -> WorkspaceResponse.fromEntity(workspace, imageService))
+        .toList();
+    return response;
+  }
+
   /**
    * 워크스페이스 생성
    * 
    * @param WorkspaceRequest (String name, String image), UUID userId
-   * @return WorkspaceResponse (UUID id, String name)
+   * @return WorkspaceResponse (UUID id, String name, String image)
    */
   @Override
   public WorkspaceResponse createWorkspace(WorkspaceRequest request, UUID userId) {

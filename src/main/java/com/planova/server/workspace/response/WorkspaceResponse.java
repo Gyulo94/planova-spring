@@ -2,6 +2,9 @@ package com.planova.server.workspace.response;
 
 import java.util.UUID;
 
+import com.planova.server.image.entity.EntityType;
+import com.planova.server.image.entity.Image;
+import com.planova.server.image.service.ImageService;
 import com.planova.server.workspace.entity.Workspace;
 
 import lombok.AllArgsConstructor;
@@ -25,6 +28,20 @@ public class WorkspaceResponse {
         .id(workspace.getId())
         .name(workspace.getName())
         .image(image)
+        .build();
+  }
+
+  public static WorkspaceResponse fromEntity(Workspace workspace, ImageService imageService) {
+    String imageUrl = imageService.findImagesByEntityId(workspace.getId(), EntityType.WORKSPACE)
+        .stream()
+        .findFirst()
+        .map(Image::getUrl)
+        .orElse(null);
+
+    return WorkspaceResponse.builder()
+        .id(workspace.getId())
+        .name(workspace.getName())
+        .image(imageUrl)
         .build();
   }
 }
