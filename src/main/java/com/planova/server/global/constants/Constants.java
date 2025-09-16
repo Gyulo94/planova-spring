@@ -17,6 +17,6 @@ public class Constants {
   private long emailTokenExpiredAt;
   private String logo;
   private String emailSender;
-  private String filePath;
+  private String fileUrl;
   private String serverUrl;
 }
