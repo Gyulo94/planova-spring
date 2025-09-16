@@ -29,7 +29,12 @@ public enum ErrorCode implements ErrorCodeInterface {
   INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 리프레시 토큰입니다."),
   MISSING_USER_ID(HttpStatus.UNAUTHORIZED.value(), "사용자 ID가 없습니다."),
   REFRESH_TOKEN_CLAIMS_NOT_FOUND(HttpStatus.UNAUTHORIZED.value(), "리프레시 토큰 클레임이 없습니다."),
-  INVALID_USER_ID_FORMAT(HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 사용자 ID 형식입니다.");
+  INVALID_USER_ID_FORMAT(HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 사용자 ID 형식입니다."),
+
+  CREATE_WORKSPACE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "워크스페이스 생성에 실패했습니다."),
+
+  SAVE_IMAGE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "이미지 저장에 실패했습니다."),
+  ;
 
   private final Integer httpStatusCode;
   private final String message;
