@@ -8,6 +8,12 @@ import com.planova.server.workspace.response.WorkspaceResponse;
 
 public interface WorkspaceService {
 
+  /**
+   * 유저가 속한 워크스페이스 조회
+   * 
+   * @param UUID userId
+   * @return List<WorkspaceResponse> (UUID id, String name, String image)
+   */
   List<WorkspaceResponse> findWorkspaces(UUID userId);
 
   /**

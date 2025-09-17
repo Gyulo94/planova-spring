@@ -19,15 +19,16 @@ import lombok.ToString;
 @AllArgsConstructor
 public class WorkspaceRequest {
 
-  @NotBlank(message = "이메일은 필수 입력값입니다.")
+  @NotBlank(message = "워크스페이스 이름은 필수 입력값입니다.")
   private String name;
 
   private String image;
 
-  public static Workspace toEntity(WorkspaceRequest request, User user) {
+  public static Workspace toEntity(WorkspaceRequest request, String inviteCode, User owner) {
     return Workspace.builder()
         .name(request.getName())
-        .user(user)
+        .inviteCode(inviteCode)
+        .owner(owner)
         .build();
   }
 }

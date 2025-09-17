@@ -26,6 +26,12 @@ public class WorkspaceController {
 
   private final WorkspaceService workspaceService;
 
+  /**
+   * 유저가 속한 워크스페이스 조회
+   * 
+   * @param UUID userId
+   * @return List<WorkspaceResponse> (UUID id, String name)
+   */
   @GetMapping("all")
   public Api<List<WorkspaceResponse>> findWorkspaces(@CurrentUser JwtPayload user) {
     List<WorkspaceResponse> response = workspaceService.findWorkspaces(user.getId());
