@@ -1,0 +1,33 @@
+package com.planova.server.workspaceMember.request;
+
+import com.planova.server.workspaceMember.entity.WorkspaceMember;
+import com.planova.server.workspaceMember.entity.WorkspaceMemberId;
+import com.planova.server.workspaceMember.entity.WorkspaceMemberRole;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class WorkspaceMemberRequest {
+
+  @NotBlank(message = "워크스페이스 초대 코드는 필수 입력값입니다.")
+  private String inviteCode;
+
+  public static WorkspaceMember toEntity(WorkspaceMemberId workspaceMemberId) {
+    return WorkspaceMember.builder()
+        .workspaceId(workspaceMemberId.getWorkspaceId())
+        .userId(workspaceMemberId.getUserId())
+        .role(WorkspaceMemberRole.MEMBER)
+        .build();
+  }
+}

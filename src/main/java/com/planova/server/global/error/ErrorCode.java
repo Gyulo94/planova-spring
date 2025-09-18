@@ -37,6 +37,8 @@ public enum ErrorCode implements ErrorCodeInterface {
   WORKSPACE_UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "워크스페이스 접근 권한이 없습니다."),
   MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "워크스페이스 멤버가 아닙니다."),
 
+  MEMBER_ALREADY_EXISTS(HttpStatus.CONFLICT.value(), "이미 워크스페이스 멤버입니다."),
+
   SAVE_IMAGE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "이미지 저장에 실패했습니다."),
   ;
 

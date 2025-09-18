@@ -1,6 +1,7 @@
 package com.planova.server.workspaceMember.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import com.planova.server.workspaceMember.entity.WorkspaceMember;
 import com.planova.server.workspaceMember.entity.WorkspaceMemberId;
 import com.planova.server.workspaceMember.entity.WorkspaceMemberRole;
 import com.planova.server.workspaceMember.repository.WorkspaceMemberRepository;
+import com.planova.server.workspaceMember.request.WorkspaceMemberRequest;
 
 import lombok.RequiredArgsConstructor;
 
@@ -92,5 +94,15 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
     if (!members.isEmpty()) {
       workspaceMemberRepository.deleteAll(members);
     }
+  }
+
+  @Override
+  public void joinWorkspace(UUID workspaceId, WorkspaceMemberRequest request, UUID userId) {
+    WorkspaceMemberId workspaceMemberId = new WorkspaceMemberId(workspaceId, userId);
+    boolean isMember = workspaceMemberRepository.existsById(workspaceMemberId);
+    if (isMember) {
+      throw new ApiException(ErrorCode.MEMBER_ALREADY_EXISTS);
+    }
+    workspaceMemberRepository.save(WorkspaceMemberRequest.toEntity(workspaceMemberId));
   }
 }

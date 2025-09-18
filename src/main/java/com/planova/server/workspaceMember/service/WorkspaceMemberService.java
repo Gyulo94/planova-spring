@@ -1,10 +1,12 @@
 package com.planova.server.workspaceMember.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.planova.server.global.exception.ApiException;
 import com.planova.server.user.entity.User;
 import com.planova.server.workspace.entity.Workspace;
+import com.planova.server.workspaceMember.request.WorkspaceMemberRequest;
 
 public interface WorkspaceMemberService {
 
@@ -45,4 +47,6 @@ public interface WorkspaceMemberService {
    * @param Workspace workspace
    */
   public void deleteWorkspaceMembers(Workspace workspace);
+
+  public void joinWorkspace(UUID workspaceId, WorkspaceMemberRequest request, UUID userId);
 }
