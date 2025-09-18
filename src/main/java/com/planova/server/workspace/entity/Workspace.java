@@ -51,4 +51,8 @@ public class Workspace {
   public void update(String name) {
     this.name = name;
   }
+
+  public void updateInviteCode(String inviteCode) {
+    this.inviteCode = inviteCode;
+  }
 }

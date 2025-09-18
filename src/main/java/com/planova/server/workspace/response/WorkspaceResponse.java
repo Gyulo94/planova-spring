@@ -24,6 +24,7 @@ public class WorkspaceResponse {
   private UUID id;
   private String name;
   private String image;
+  private String inviteCode;
   private UserResponse owner;
   private LocalDateTime createdAt;
 
@@ -47,6 +48,7 @@ public class WorkspaceResponse {
         .name(workspace.getName())
         .image(imageUrl)
         .owner(UserResponse.fromEntity(workspace.getOwner()))
+        .inviteCode(workspace.getInviteCode())
         .createdAt(workspace.getCreatedAt())
         .build();
   }

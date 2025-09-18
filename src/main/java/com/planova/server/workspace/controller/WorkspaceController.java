@@ -86,9 +86,26 @@ public class WorkspaceController {
     return Api.OK(response, ResponseMessage.UPDATE_WORKSPACE_SUCCESS);
   }
 
+  /**
+   * 워크스페이스 삭제
+   * 
+   * @param UUID id, UUID userId
+   * @return String (삭제 성공 메세지)
+   */
   @DeleteMapping("{id}/delete")
   public Api<String> deleteWorkspace(@PathVariable("id") UUID id, @CurrentUser JwtPayload user) {
     workspaceService.deleteWorkspace(id, user.getId());
     return Api.OK(ResponseMessage.DELETE_WORKSPACE_SUCCESS);
+  }
+
+  /**
+   * 워크스페이스 초대 코드 재발급
+   * 
+   * @param UUID id, UUID userId
+   */
+  @PutMapping("{id}/reset-invite-code")
+  public Api<Void> resetInviteCode(@PathVariable("id") UUID id, @CurrentUser JwtPayload user) {
+    workspaceService.resetInviteCode(id, user.getId());
+    return Api.OK(ResponseMessage.RESET_INVITE_CODE_SUCCESS);
   }
 }

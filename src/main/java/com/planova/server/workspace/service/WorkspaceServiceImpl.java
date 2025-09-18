@@ -134,4 +134,19 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     workspaceMemberService.deleteWorkspaceMembers(workspace);
     workspaceRepository.delete(workspace);
   }
+
+  /**
+   * 워크스페이스 초대 코드 재발급
+   * 
+   * @param UUID id, UUID userId
+   */
+  @Transactional
+  @Override
+  public void resetInviteCode(UUID id, UUID userId) {
+    Workspace workspace = findWorkspaceEntityById(id);
+    User user = userService.getUserEntityById(userId);
+    workspaceMemberService.validateWorkspaceOwner(workspace, user);
+    String newInviteCode = GenerateInviteCodeUtils.generateInviteCode(8);
+    workspace.updateInviteCode(newInviteCode);
+  }
 }

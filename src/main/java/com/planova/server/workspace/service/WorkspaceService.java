@@ -53,4 +53,11 @@ public interface WorkspaceService {
    * @return String (삭제 성공 메시지)
    */
   void deleteWorkspace(UUID id, UUID userId);
+
+  /**
+   * 워크스페이스 초대 코드 재발급
+   * 
+   * @param UUID id, UUID userId
+   */
+  void resetInviteCode(UUID id, UUID userId);
 }
