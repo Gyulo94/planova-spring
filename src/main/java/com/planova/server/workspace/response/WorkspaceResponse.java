@@ -1,10 +1,12 @@
 package com.planova.server.workspace.response;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.planova.server.image.entity.EntityType;
 import com.planova.server.image.entity.Image;
 import com.planova.server.image.service.ImageService;
+import com.planova.server.user.response.UserResponse;
 import com.planova.server.workspace.entity.Workspace;
 
 import lombok.AllArgsConstructor;
@@ -22,6 +24,8 @@ public class WorkspaceResponse {
   private UUID id;
   private String name;
   private String image;
+  private UserResponse owner;
+  private LocalDateTime createdAt;
 
   public static WorkspaceResponse fromEntity(Workspace workspace, String image) {
     return WorkspaceResponse.builder()
@@ -42,6 +46,8 @@ public class WorkspaceResponse {
         .id(workspace.getId())
         .name(workspace.getName())
         .image(imageUrl)
+        .owner(UserResponse.fromEntity(workspace.getOwner()))
+        .createdAt(workspace.getCreatedAt())
         .build();
   }
 }

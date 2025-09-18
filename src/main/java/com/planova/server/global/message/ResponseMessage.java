@@ -10,7 +10,10 @@ public enum ResponseMessage implements ResponseMessageInterface {
   RESET_PASSWORD_SUCCESS("비밀번호가 성공적으로 변경되었습니다. 다시 로그인을 해주세요."),
   LOGOUT_SUCCESS("로그아웃 되었습니다. 다음에 또 만나요 !"),
 
-  CREATE_WORKSPACE_SUCCESS("워크스페이스가 성공적으로 생성되었습니다.");
+  CREATE_WORKSPACE_SUCCESS("워크스페이스가 성공적으로 생성되었습니다."),
+  UPDATE_WORKSPACE_SUCCESS("워크스페이스가 성공적으로 수정되었습니다."),
+  DELETE_WORKSPACE_SUCCESS("워크스페이스가 성공적으로 삭제되었습니다."),
+  ;
 
   private final String message;
 }

@@ -54,6 +54,19 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
   }
 
   /**
+   * 워크스페이스 소유자 검증
+   * 
+   * @param Workspace workspace, User user
+   * @throws ApiException (ErrorCode.WORKSPACE_UNAUTHORIZED)
+   */
+  @Override
+  public void validateWorkspaceOwner(Workspace workspace, User user) {
+    if (workspace.getOwner().getId() != user.getId()) {
+      throw new ApiException(ErrorCode.WORKSPACE_UNAUTHORIZED);
+    }
+  }
+
+  /**
    * 유저가 속한 워크스페이스 조회
    * 
    * @param User user
@@ -66,5 +79,18 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
         .map(WorkspaceMember::getWorkspace)
         .toList();
     return workspaces;
+  }
+
+  /**
+   * 워크스페이스의 모든 멤버 삭제
+   * 
+   * @param Workspace workspace
+   */
+  @Override
+  public void deleteWorkspaceMembers(Workspace workspace) {
+    List<WorkspaceMember> members = workspaceMemberRepository.findAllByWorkspace(workspace);
+    if (!members.isEmpty()) {
+      workspaceMemberRepository.deleteAll(members);
+    }
   }
 }

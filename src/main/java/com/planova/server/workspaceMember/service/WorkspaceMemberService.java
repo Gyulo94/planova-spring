@@ -24,10 +24,25 @@ public interface WorkspaceMemberService {
   public void validateWorkspaceMember(Workspace workspace, User user);
 
   /**
+   * 워크스페이스 소유자 검증
+   * 
+   * @param Workspace workspace, User user
+   * @throws ApiException (ErrorCode.WORKSPACE_UNAUTHORIZED)
+   */
+  public void validateWorkspaceOwner(Workspace workspace, User user);
+
+  /**
    * 유저가 속한 워크스페이스 조회
    * 
    * @param User user
    * @return List<Workspace>
    */
   public List<Workspace> findWorkspaces(User user);
+
+  /**
+   * 워크스페이스의 모든 멤버 삭제
+   * 
+   * @param Workspace workspace
+   */
+  public void deleteWorkspaceMembers(Workspace workspace);
 }

@@ -47,4 +47,8 @@ public class Workspace {
   @CreatedDate
   @Column(name = "created_at", updatable = false)
   private LocalDateTime createdAt;
+
+  public void update(String name) {
+    this.name = name;
+  }
 }

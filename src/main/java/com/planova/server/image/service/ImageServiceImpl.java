@@ -106,4 +106,90 @@ public class ImageServiceImpl implements ImageService {
     });
     return response;
   }
+
+  @Override
+  public List<String> updateImages(UUID entityId, List<String> images, List<String> existingImages,
+      EntityType entityType) {
+    LOGGER.info("=== 이미지 업데이트 시작 ===");
+    LOGGER.info("Entity ID: {}, Type: {}", entityId, entityType);
+    LOGGER.info("새 이미지 개수: {}, 기존 이미지 개수: {}", images.size(), existingImages.size());
+
+    ImageRequest newRequest = ImageRequest.builder()
+        .id(entityId)
+        .images(images)
+        .existingImages(existingImages)
+        .entity(entityType.name().toLowerCase())
+        .build();
+
+    try {
+      List<String> response = webClient.put()
+          .uri("/planova/update")
+          .contentType(MediaType.APPLICATION_JSON)
+          .bodyValue(newRequest)
+          .retrieve()
+          .bodyToMono(new ParameterizedTypeReference<List<String>>() {
+          })
+          .block();
+
+      if (response == null) {
+        throw new ApiException(ErrorCode.SAVE_IMAGE_FAILED);
+      }
+
+      LOGGER.info("NestJS 서버 응답: {}", response);
+
+      // 기존 이미지 데이터 삭제
+      List<Image> existingImageEntities = imageRepository.findByEntityIdAndEntityType(entityId, entityType);
+      if (!existingImageEntities.isEmpty()) {
+        imageRepository.deleteAll(existingImageEntities);
+        LOGGER.info("기존 이미지 {} 개 삭제 완료", existingImageEntities.size());
+      }
+
+      // 새로운 이미지 데이터 저장
+      response.forEach(url -> {
+        Image image = Image.builder()
+            .entityId(entityId)
+            .entityType(entityType)
+            .url(url)
+            .build();
+        imageRepository.save(image);
+      });
+
+      LOGGER.info("새 이미지 {} 개 저장 완료", response.size());
+      return response;
+
+    } catch (Exception e) {
+      LOGGER.error("이미지 업데이트 실패: {}", e.getMessage(), e);
+      throw new ApiException(ErrorCode.SAVE_IMAGE_FAILED);
+    }
+  }
+
+  @Override
+  public void deleteImages(UUID entityId, EntityType entityType) {
+    ImageRequest newRequest = ImageRequest.builder()
+        .id(entityId)
+        .entity(entityType.name().toLowerCase())
+        .build();
+
+    List<String> response = webClient.put()
+        .uri("/planova/update")
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(newRequest)
+        .retrieve()
+        .bodyToMono(new ParameterizedTypeReference<List<String>>() {
+        })
+        .block();
+
+    if (response == null) {
+      throw new ApiException(ErrorCode.SAVE_IMAGE_FAILED);
+    }
+
+    LOGGER.info("NestJS 서버 응답: {}", response);
+
+    // 기존 이미지 데이터 삭제
+    List<Image> existingImageEntities = imageRepository.findByEntityIdAndEntityType(entityId, entityType);
+    if (!existingImageEntities.isEmpty()) {
+      imageRepository.deleteAll(existingImageEntities);
+      LOGGER.info("기존 이미지 {} 개 삭제 완료", existingImageEntities.size());
+    }
+  }
 }

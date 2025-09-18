@@ -17,6 +17,7 @@ import lombok.Setter;
 public class ImageRequest {
     private UUID id;
     private List<String> images;
+    private String serviceName;
     private List<String> existingImages;
     private String entity;
 }

@@ -16,4 +16,8 @@ public interface ImageService {
 
   List<String> createImages(UUID entityId, List<String> images, EntityType entityType);
 
+  List<String> updateImages(UUID entityId, List<String> images, List<String> existingImages, EntityType entityType);
+
+  void deleteImages(UUID entityId, EntityType entityType);
+
 }

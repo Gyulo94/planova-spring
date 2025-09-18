@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.planova.server.global.error.ErrorCode;
+import com.planova.server.global.exception.ApiException;
 import com.planova.server.global.util.GenerateInviteCodeUtils;
 import com.planova.server.image.entity.EntityType;
 import com.planova.server.image.service.ImageService;
@@ -46,6 +48,37 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   }
 
   /**
+   * 워크스페이스 상세 조회
+   * 
+   * @param UUID id, UUID userId
+   * @return WorkspaceResponse (UUID id, String name)
+   */
+  @Override
+  public WorkspaceResponse findWorkspaceById(UUID id, UUID userId) {
+    Workspace workspace = findWorkspaceEntityById(id);
+    User user = userService.getUserEntityById(userId);
+    workspaceMemberService.validateWorkspaceMember(workspace, user);
+    WorkspaceResponse response = WorkspaceResponse.fromEntity(workspace, imageService);
+    return response;
+  }
+
+  /**
+   * 워크스페이스 엔터티 반환 메서드 (공개)
+   */
+  public Workspace getWorkspaceEntityById(UUID id) {
+    return findWorkspaceEntityById(id);
+  }
+
+  /**
+   * 워크스페이스 엔터티 반환 메서드 (비공개 내수용)
+   */
+  private Workspace findWorkspaceEntityById(UUID id) {
+    Workspace workspace = workspaceRepository.findById(id)
+        .orElseThrow(() -> new ApiException(ErrorCode.WORKSPACE_NOT_FOUND));
+    return workspace;
+  }
+
+  /**
    * 워크스페이스 생성
    * 
    * @param WorkspaceRequest (String name, String image), UUID userId
@@ -64,4 +97,41 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     return response;
   }
 
+  /**
+   * 워크스페이스 수정
+   * 
+   * @param UUID id, WorkspaceRequest (String name, String image), UUID userId
+   * @return WorkspaceResponse (UUID id, String name, String image)
+   */
+  @Transactional
+  @Override
+  public WorkspaceResponse updateWorkspace(UUID id, WorkspaceRequest request, UUID userId) {
+    Workspace workspace = findWorkspaceEntityById(id);
+    User user = userService.getUserEntityById(userId);
+    workspaceMemberService.validateWorkspaceOwner(workspace, user);
+    workspace.update(request.getName());
+    String existingImage = imageService.findImagesByEntityId(workspace.getId(), EntityType.WORKSPACE).get(0).getUrl();
+    String newImage = imageService
+        .updateImages(workspace.getId(), List.of(request.getImage()), List.of(existingImage), EntityType.WORKSPACE)
+        .get(0);
+    WorkspaceResponse response = WorkspaceResponse.fromEntity(workspace, newImage);
+    return response;
+  }
+
+  /**
+   * 워크스페이스 삭제
+   * 
+   * @param UUID id, UUID userId
+   * @return String (삭제 성공 메시지)
+   */
+  @Transactional
+  @Override
+  public void deleteWorkspace(UUID id, UUID userId) {
+    Workspace workspace = findWorkspaceEntityById(id);
+    User user = userService.getUserEntityById(userId);
+    workspaceMemberService.validateWorkspaceOwner(workspace, user);
+    imageService.deleteImages(workspace.getId(), EntityType.WORKSPACE);
+    workspaceMemberService.deleteWorkspaceMembers(workspace);
+    workspaceRepository.delete(workspace);
+  }
 }
