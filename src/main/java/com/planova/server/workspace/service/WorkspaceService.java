@@ -3,6 +3,7 @@ package com.planova.server.workspace.service;
 import java.util.List;
 import java.util.UUID;
 
+import com.planova.server.global.exception.ApiException;
 import com.planova.server.workspace.entity.Workspace;
 import com.planova.server.workspace.request.WorkspaceRequest;
 import com.planova.server.workspace.response.WorkspaceResponse;
@@ -60,4 +61,12 @@ public interface WorkspaceService {
    * @param UUID id, UUID userId
    */
   void resetInviteCode(UUID id, UUID userId);
+
+  /**
+   * 워크스페이스 소유자 검증
+   * 
+   * @param Workspace workspace, User user
+   * @throws ApiException (ErrorCode.WORKSPACE_UNAUTHORIZED)
+   */
+  public void validateWorkspaceOwner(UUID ownerId, UUID userId);
 }

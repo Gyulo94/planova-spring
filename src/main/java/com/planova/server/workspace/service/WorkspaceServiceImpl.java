@@ -39,8 +39,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   @Transactional
   @Override
   public List<WorkspaceResponse> findWorkspaces(UUID userId) {
-    User user = userService.getUserEntityById(userId);
-    List<Workspace> workspaces = workspaceMemberService.findWorkspaces(user);
+    List<Workspace> workspaces = workspaceMemberService.findWorkspaces(userId);
     List<WorkspaceResponse> response = workspaces.stream()
         .map(workspace -> WorkspaceResponse.fromEntity(workspace, imageService))
         .toList();
@@ -56,8 +55,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   @Override
   public WorkspaceResponse findWorkspaceById(UUID id, UUID userId) {
     Workspace workspace = findWorkspaceEntityById(id);
-    User user = userService.getUserEntityById(userId);
-    workspaceMemberService.validateWorkspaceMember(workspace, user);
+    workspaceMemberService.validateWorkspaceMember(id, userId);
     WorkspaceResponse response = WorkspaceResponse.fromEntity(workspace, imageService);
     return response;
   }
@@ -107,8 +105,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   @Override
   public WorkspaceResponse updateWorkspace(UUID id, WorkspaceRequest request, UUID userId) {
     Workspace workspace = findWorkspaceEntityById(id);
-    User user = userService.getUserEntityById(userId);
-    workspaceMemberService.validateWorkspaceOwner(workspace, user);
+    validateWorkspaceOwner(workspace.getOwner().getId(), userId);
     workspace.update(request.getName());
     String existingImage = imageService.findImagesByEntityId(workspace.getId(), EntityType.WORKSPACE).get(0).getUrl();
     String newImage = imageService
@@ -128,10 +125,9 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   @Override
   public void deleteWorkspace(UUID id, UUID userId) {
     Workspace workspace = findWorkspaceEntityById(id);
-    User user = userService.getUserEntityById(userId);
-    workspaceMemberService.validateWorkspaceOwner(workspace, user);
+    validateWorkspaceOwner(workspace.getOwner().getId(), userId);
     imageService.deleteImages(workspace.getId(), EntityType.WORKSPACE);
-    workspaceMemberService.deleteWorkspaceMembers(workspace);
+    workspaceMemberService.deleteWorkspaceMembers(id);
     workspaceRepository.delete(workspace);
   }
 
@@ -144,9 +140,21 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   @Override
   public void resetInviteCode(UUID id, UUID userId) {
     Workspace workspace = findWorkspaceEntityById(id);
-    User user = userService.getUserEntityById(userId);
-    workspaceMemberService.validateWorkspaceOwner(workspace, user);
+    validateWorkspaceOwner(workspace.getOwner().getId(), userId);
     String newInviteCode = GenerateInviteCodeUtils.generateInviteCode(8);
     workspace.updateInviteCode(newInviteCode);
+  }
+
+  /**
+   * 워크스페이스 소유자 검증
+   * 
+   * @param Workspace workspace, User user
+   * @throws ApiException (ErrorCode.WORKSPACE_UNAUTHORIZED)
+   */
+  @Override
+  public void validateWorkspaceOwner(UUID ownerId, UUID userId) {
+    if (!ownerId.equals(userId)) {
+      throw new ApiException(ErrorCode.WORKSPACE_UNAUTHORIZED);
+    }
   }
 }

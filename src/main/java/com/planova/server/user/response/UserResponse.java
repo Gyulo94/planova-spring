@@ -7,16 +7,16 @@ import com.planova.server.user.entity.Provider;
 import com.planova.server.user.entity.User;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class UserResponse {
 
   private UUID id;
