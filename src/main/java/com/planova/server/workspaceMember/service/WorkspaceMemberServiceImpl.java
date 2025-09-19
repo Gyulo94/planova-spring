@@ -14,7 +14,7 @@ import com.planova.server.workspaceMember.entity.WorkspaceMemberId;
 import com.planova.server.workspaceMember.entity.WorkspaceMemberRole;
 import com.planova.server.workspaceMember.repository.WorkspaceMemberRepository;
 import com.planova.server.workspaceMember.request.WorkspaceMemberRequest;
-import com.planova.server.workspaceMember.response.WorkspaceMemberInfo;
+import com.planova.server.workspaceMember.response.WorkspaceMemberInfoResponse;
 import com.planova.server.workspaceMember.response.WorkspaceMemberResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -57,6 +57,15 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
     }
   }
 
+  public void validateWorkspaceAdmin(UUID workspaceId, UUID userId) {
+    WorkspaceMemberId workspaceMemberId = new WorkspaceMemberId(workspaceId, userId);
+    WorkspaceMember workspaceMember = workspaceMemberRepository.findById(workspaceMemberId)
+        .orElseThrow(() -> new ApiException(ErrorCode.MEMBER_NOT_FOUND));
+    if (workspaceMember.getRole() != WorkspaceMemberRole.ADMIN) {
+      throw new ApiException(ErrorCode.MEMBER_NOT_ADMIN);
+    }
+  }
+
   /**
    * 유저가 속한 워크스페이스 조회
    * 
@@ -86,9 +95,44 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
   }
 
   /**
+   * 워크스페이스 멤버 조회
+   * 
+   * @param UUID workspaceId, UUID userId
+   * @return WorkspaceMemberResponse
+   */
+  @Override
+  public WorkspaceMemberResponse findWorkspaceMembers(UUID workspaceId, UUID userId) {
+    validateWorkspaceMember(workspaceId, userId);
+    List<WorkspaceMember> workspaceMembers = workspaceMemberRepository.findAllByWorkspaceId(workspaceId);
+    List<WorkspaceMemberInfoResponse> memberInfos = workspaceMembers.stream()
+        .map(member -> WorkspaceMemberInfoResponse.fromEntity(member, member.getUser()))
+        .toList();
+    WorkspaceMemberResponse response = WorkspaceMemberResponse.fromEntity(workspaceId, memberInfos);
+    return response;
+  }
+
+  /**
+   * 워크스페이스내 나의 정보 조회
+   * 
+   * @param UUID workspaceId, UUID userId
+   * @return WorkspaceMemberInfoResponse
+   */
+  @Override
+  public WorkspaceMemberInfoResponse findMyWorkspaceMemberInfo(UUID workspaceId, UUID userId) {
+    validateWorkspaceMember(workspaceId, userId);
+    WorkspaceMemberId workspaceMemberId = new WorkspaceMemberId(workspaceId, userId);
+    WorkspaceMember workspaceMember = workspaceMemberRepository.findById(workspaceMemberId)
+        .orElseThrow(() -> new ApiException(ErrorCode.MEMBER_NOT_FOUND));
+    User user = workspaceMember.getUser();
+    WorkspaceMemberInfoResponse response = WorkspaceMemberInfoResponse.fromEntity(workspaceMember, user);
+    return response;
+  }
+
+  /**
    * 워크스페이스 참가
    * 
    * @param UUID workspaceId, WorkspaceMemberRequest request, UUID userId
+   * @return message - "워크스페이스에 성공적으로 참가하였습니다."
    */
   @Override
   public void joinWorkspace(UUID workspaceId, WorkspaceMemberRequest request, UUID userId) {
@@ -101,19 +145,38 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
   }
 
   /**
-   * 워크스페이스 멤버 조회
+   * 워크스페이스 멤버 권한 변경
    * 
-   * @param Workspace workspace, User user
-   * @return WorkspaceMemberResponse
+   * @param UUID workspaceId, UUID memberId, UUID userId
+   * @return message - "워크스페이스 멤버 권한이 성공적으로 변경되었습니다."
    */
   @Override
-  public WorkspaceMemberResponse findWorkspaceMembers(UUID workspaceId, UUID userId) {
-    validateWorkspaceMember(workspaceId, userId);
-    List<WorkspaceMember> workspaceMembers = workspaceMemberRepository.findAllByWorkspaceId(workspaceId);
-    List<WorkspaceMemberInfo> memberInfos = workspaceMembers.stream()
-        .map(member -> WorkspaceMemberInfo.fromEntity(member, member.getUser()))
-        .toList();
-    WorkspaceMemberResponse response = WorkspaceMemberResponse.fromEntity(workspaceId, memberInfos);
-    return response;
+  public void updateWorkspaceMember(UUID workspaceId, UUID memberId, UUID userId) {
+    validateWorkspaceMember(workspaceId, memberId);
+    validateWorkspaceAdmin(workspaceId, userId);
+    WorkspaceMemberId workspaceMemberId = new WorkspaceMemberId(workspaceId, memberId);
+    WorkspaceMember workspaceMember = workspaceMemberRepository.findById(workspaceMemberId)
+        .orElseThrow(() -> new ApiException(ErrorCode.MEMBER_NOT_FOUND));
+
+    if (workspaceMember.getRole() == WorkspaceMemberRole.ADMIN) {
+      workspaceMember.updateRole(WorkspaceMemberRole.MEMBER);
+    } else {
+      workspaceMember.updateRole(WorkspaceMemberRole.ADMIN);
+    }
+    workspaceMemberRepository.save(workspaceMember);
+  }
+
+  /**
+   * 워크스페이스 멤버 추방
+   * 
+   * @param UUID workspaceId, UUID memberId, UUID userId
+   * @return message - "워크스페이스 멤버가 성공적으로 추방되었습니다."
+   */
+  @Override
+  public void removeWorkspaceMember(UUID workspaceId, UUID memberId, UUID userId) {
+    validateWorkspaceMember(workspaceId, memberId);
+    validateWorkspaceAdmin(workspaceId, userId);
+    WorkspaceMemberId workspaceMemberId = new WorkspaceMemberId(workspaceId, memberId);
+    workspaceMemberRepository.deleteById(workspaceMemberId);
   }
 }

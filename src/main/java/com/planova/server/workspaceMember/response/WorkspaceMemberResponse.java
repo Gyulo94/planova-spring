@@ -17,10 +17,10 @@ import lombok.ToString;
 public class WorkspaceMemberResponse {
 
   private UUID workspaceId;
-  private List<WorkspaceMemberInfo> members;
+  private List<WorkspaceMemberInfoResponse> members;
   private int memberCount;
 
-  public static WorkspaceMemberResponse fromEntity(UUID workspaceId, List<WorkspaceMemberInfo> members) {
+  public static WorkspaceMemberResponse fromEntity(UUID workspaceId, List<WorkspaceMemberInfoResponse> members) {
     return WorkspaceMemberResponse.builder()
         .workspaceId(workspaceId)
         .members(members)

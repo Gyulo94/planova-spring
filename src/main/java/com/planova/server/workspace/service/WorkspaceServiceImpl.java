@@ -55,7 +55,6 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   @Override
   public WorkspaceResponse findWorkspaceById(UUID id, UUID userId) {
     Workspace workspace = findWorkspaceEntityById(id);
-    workspaceMemberService.validateWorkspaceMember(id, userId);
     WorkspaceResponse response = WorkspaceResponse.fromEntity(workspace, imageService);
     return response;
   }

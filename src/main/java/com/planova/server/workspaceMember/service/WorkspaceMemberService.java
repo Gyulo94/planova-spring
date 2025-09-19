@@ -7,6 +7,7 @@ import com.planova.server.global.exception.ApiException;
 import com.planova.server.user.entity.User;
 import com.planova.server.workspace.entity.Workspace;
 import com.planova.server.workspaceMember.request.WorkspaceMemberRequest;
+import com.planova.server.workspaceMember.response.WorkspaceMemberInfoResponse;
 import com.planova.server.workspaceMember.response.WorkspaceMemberResponse;
 
 public interface WorkspaceMemberService {
@@ -42,17 +43,42 @@ public interface WorkspaceMemberService {
   public void deleteWorkspaceMembers(UUID workspaceId);
 
   /**
+   * 워크스페이스 멤버 조회
+   * 
+   * @param UUID workspaceId, UUID userId
+   * @return WorkspaceMemberResponse
+   */
+  public WorkspaceMemberResponse findWorkspaceMembers(UUID workspaceId, UUID userId);
+
+  /**
+   * 워크스페이스내 나의 정보 조회
+   * 
+   * @param UUID workspaceId, UUID userId
+   * @return WorkspaceMemberInfoResponse
+   */
+  public WorkspaceMemberInfoResponse findMyWorkspaceMemberInfo(UUID workspaceId, UUID userId);
+
+  /**
    * 워크스페이스 참가
    * 
    * @param UUID workspaceId, WorkspaceMemberRequest request, UUID userId
+   * @return message - "워크스페이스에 성공적으로 참가하였습니다."
    */
   public void joinWorkspace(UUID workspaceId, WorkspaceMemberRequest request, UUID userId);
 
   /**
-   * 워크스페이스 멤버 조회
+   * 워크스페이스 멤버 권한 변경
    * 
-   * @param Workspace workspace, User user
-   * @return WorkspaceMemberResponse
+   * @param UUID workspaceId, UUID memberId, UUID userId
+   * @return message - "워크스페이스 멤버 권한이 성공적으로 변경되었습니다."
    */
-  public WorkspaceMemberResponse findWorkspaceMembers(UUID workspaceId, UUID userId);
+  public void updateWorkspaceMember(UUID workspaceId, UUID memberId, UUID userId);
+
+  /**
+   * 워크스페이스 멤버 추방
+   * 
+   * @param UUID workspaceId, UUID memberId, UUID userId
+   * @return message - "워크스페이스 멤버가 성공적으로 추방되었습니다."
+   */
+  public void removeWorkspaceMember(UUID workspaceId, UUID memberId, UUID userId);
 }

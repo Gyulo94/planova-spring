@@ -64,4 +64,8 @@ public class WorkspaceMember {
   @LastModifiedDate
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
+
+  public void updateRole(WorkspaceMemberRole role) {
+    this.role = role;
+  }
 }

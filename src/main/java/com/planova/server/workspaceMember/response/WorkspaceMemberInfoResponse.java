@@ -18,13 +18,13 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class WorkspaceMemberInfo extends UserResponse {
-  
+public class WorkspaceMemberInfoResponse extends UserResponse {
+
   private WorkspaceMemberRole role;
   private LocalDateTime joinedAt;
 
-  public static WorkspaceMemberInfo fromEntity(WorkspaceMember workspaceMember, User user) {
-    return WorkspaceMemberInfo.builder()
+  public static WorkspaceMemberInfoResponse fromEntity(WorkspaceMember workspaceMember, User user) {
+    return WorkspaceMemberInfoResponse.builder()
         .id(user.getId())
         .name(user.getName())
         .email(user.getEmail())
