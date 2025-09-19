@@ -7,6 +7,7 @@ import com.planova.server.global.exception.ApiException;
 import com.planova.server.user.entity.User;
 import com.planova.server.workspace.entity.Workspace;
 import com.planova.server.workspaceMember.request.WorkspaceMemberRequest;
+import com.planova.server.workspaceMember.response.WorkspaceMemberResponse;
 
 public interface WorkspaceMemberService {
 
@@ -23,15 +24,7 @@ public interface WorkspaceMemberService {
    * @param Workspace workspace, User user
    * @throws ApiException (ErrorCode.MEMBER_NOT_FOUND)
    */
-  public void validateWorkspaceMember(Workspace workspace, User user);
-
-  /**
-   * 워크스페이스 소유자 검증
-   * 
-   * @param Workspace workspace, User user
-   * @throws ApiException (ErrorCode.WORKSPACE_UNAUTHORIZED)
-   */
-  public void validateWorkspaceOwner(Workspace workspace, User user);
+  public void validateWorkspaceMember(UUID workspaceId, UUID userId);
 
   /**
    * 유저가 속한 워크스페이스 조회
@@ -39,14 +32,27 @@ public interface WorkspaceMemberService {
    * @param User user
    * @return List<Workspace>
    */
-  public List<Workspace> findWorkspaces(User user);
+  public List<Workspace> findWorkspaces(UUID userId);
 
   /**
    * 워크스페이스의 모든 멤버 삭제
    * 
    * @param Workspace workspace
    */
-  public void deleteWorkspaceMembers(Workspace workspace);
+  public void deleteWorkspaceMembers(UUID workspaceId);
 
+  /**
+   * 워크스페이스 참가
+   * 
+   * @param UUID workspaceId, WorkspaceMemberRequest request, UUID userId
+   */
   public void joinWorkspace(UUID workspaceId, WorkspaceMemberRequest request, UUID userId);
+
+  /**
+   * 워크스페이스 멤버 조회
+   * 
+   * @param Workspace workspace, User user
+   * @return WorkspaceMemberResponse
+   */
+  public WorkspaceMemberResponse findWorkspaceMembers(UUID workspaceId, UUID userId);
 }

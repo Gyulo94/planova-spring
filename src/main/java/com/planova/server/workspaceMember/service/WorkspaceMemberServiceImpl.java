@@ -14,6 +14,8 @@ import com.planova.server.workspaceMember.entity.WorkspaceMemberId;
 import com.planova.server.workspaceMember.entity.WorkspaceMemberRole;
 import com.planova.server.workspaceMember.repository.WorkspaceMemberRepository;
 import com.planova.server.workspaceMember.request.WorkspaceMemberRequest;
+import com.planova.server.workspaceMember.response.WorkspaceMemberInfo;
+import com.planova.server.workspaceMember.response.WorkspaceMemberResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -47,24 +49,11 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
    * @throws ApiException (ErrorCode.MEMBER_NOT_FOUND)
    */
   @Override
-  public void validateWorkspaceMember(Workspace workspace, User user) {
-    WorkspaceMemberId workspaceMemberId = new WorkspaceMemberId(workspace.getId(), user.getId());
+  public void validateWorkspaceMember(UUID workspaceId, UUID userId) {
+    WorkspaceMemberId workspaceMemberId = new WorkspaceMemberId(workspaceId, userId);
     boolean isMember = workspaceMemberRepository.existsById(workspaceMemberId);
     if (!isMember) {
       throw new ApiException(ErrorCode.MEMBER_NOT_FOUND);
-    }
-  }
-
-  /**
-   * 워크스페이스 소유자 검증
-   * 
-   * @param Workspace workspace, User user
-   * @throws ApiException (ErrorCode.WORKSPACE_UNAUTHORIZED)
-   */
-  @Override
-  public void validateWorkspaceOwner(Workspace workspace, User user) {
-    if (workspace.getOwner().getId() != user.getId()) {
-      throw new ApiException(ErrorCode.WORKSPACE_UNAUTHORIZED);
     }
   }
 
@@ -75,8 +64,8 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
    * @return List<Workspace>
    */
   @Override
-  public List<Workspace> findWorkspaces(User user) {
-    List<WorkspaceMember> workspaceMembers = workspaceMemberRepository.findAllByUser(user);
+  public List<Workspace> findWorkspaces(UUID userId) {
+    List<WorkspaceMember> workspaceMembers = workspaceMemberRepository.findAllByUserId(userId);
     List<Workspace> workspaces = workspaceMembers.stream()
         .map(WorkspaceMember::getWorkspace)
         .toList();
@@ -89,13 +78,18 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
    * @param Workspace workspace
    */
   @Override
-  public void deleteWorkspaceMembers(Workspace workspace) {
-    List<WorkspaceMember> members = workspaceMemberRepository.findAllByWorkspace(workspace);
+  public void deleteWorkspaceMembers(UUID workspaceId) {
+    List<WorkspaceMember> members = workspaceMemberRepository.findAllByWorkspaceId(workspaceId);
     if (!members.isEmpty()) {
       workspaceMemberRepository.deleteAll(members);
     }
   }
 
+  /**
+   * 워크스페이스 참가
+   * 
+   * @param UUID workspaceId, WorkspaceMemberRequest request, UUID userId
+   */
   @Override
   public void joinWorkspace(UUID workspaceId, WorkspaceMemberRequest request, UUID userId) {
     WorkspaceMemberId workspaceMemberId = new WorkspaceMemberId(workspaceId, userId);
@@ -104,5 +98,22 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
       throw new ApiException(ErrorCode.MEMBER_ALREADY_EXISTS);
     }
     workspaceMemberRepository.save(WorkspaceMemberRequest.toEntity(workspaceMemberId));
+  }
+
+  /**
+   * 워크스페이스 멤버 조회
+   * 
+   * @param Workspace workspace, User user
+   * @return WorkspaceMemberResponse
+   */
+  @Override
+  public WorkspaceMemberResponse findWorkspaceMembers(UUID workspaceId, UUID userId) {
+    validateWorkspaceMember(workspaceId, userId);
+    List<WorkspaceMember> workspaceMembers = workspaceMemberRepository.findAllByWorkspaceId(workspaceId);
+    List<WorkspaceMemberInfo> memberInfos = workspaceMembers.stream()
+        .map(member -> WorkspaceMemberInfo.fromEntity(member, member.getUser()))
+        .toList();
+    WorkspaceMemberResponse response = WorkspaceMemberResponse.fromEntity(workspaceId, memberInfos);
+    return response;
   }
 }
