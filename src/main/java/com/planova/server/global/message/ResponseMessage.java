@@ -18,7 +18,9 @@ public enum ResponseMessage implements ResponseMessageInterface {
   JOIN_WORKSPACE_SUCCESS("워크스페이스에 성공적으로 참가하였습니다."),
 
   UPDATE_WORKSPACE_MEMBER_SUCCESS("워크스페이스 멤버 권한이 성공적으로 변경되었습니다."),
-  REMOVE_WORKSPACE_MEMBER_SUCCESS("워크스페이스 멤버가 성공적으로 추방되었습니다.");
+  REMOVE_WORKSPACE_MEMBER_SUCCESS("워크스페이스 멤버가 성공적으로 추방되었습니다."),
+  CREATE_PROJECT_SUCCESS("프로젝트가 성공적으로 생성되었습니다."),
+  ;
 
   private final String message;
 }

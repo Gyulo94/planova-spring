@@ -28,6 +28,14 @@ public interface WorkspaceMemberService {
   public void validateWorkspaceMember(UUID workspaceId, UUID userId);
 
   /**
+   * 워크스페이스 멤버가 ADMIN인지 검증
+   * 
+   * @param UUID workspaceId, UUID userId
+   * @throws ApiException (ErrorCode.MEMBER_NOT_ADMIN, ErrorCode.MEMBER_NOT_FOUND)
+   */
+  public void validateWorkspaceAdmin(UUID workspaceId, UUID userId);
+
+  /**
    * 유저가 속한 워크스페이스 조회
    * 
    * @param User user
