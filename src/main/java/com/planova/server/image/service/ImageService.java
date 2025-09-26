@@ -18,6 +18,6 @@ public interface ImageService {
 
   List<String> updateImages(UUID entityId, List<String> images, List<String> existingImages, EntityType entityType);
 
-  void deleteImages(UUID entityId, EntityType entityType);
+  void deleteImages(UUID entityId, String serviceName, EntityType entityType);
 
 }

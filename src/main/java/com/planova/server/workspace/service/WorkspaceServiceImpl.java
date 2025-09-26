@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.planova.server.global.constants.Constants;
 import com.planova.server.global.error.ErrorCode;
 import com.planova.server.global.exception.ApiException;
 import com.planova.server.global.util.GenerateInviteCodeUtils;
@@ -28,6 +29,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   private final WorkspaceRepository workspaceRepository;
   private final ImageService imageService;
   private final UserService userService;
+  private final Constants constants;
   private final WorkspaceMemberService workspaceMemberService;
 
   /**
@@ -125,7 +127,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   public void deleteWorkspace(UUID id, UUID userId) {
     Workspace workspace = findWorkspaceEntityById(id);
     validateWorkspaceOwner(workspace.getOwner().getId(), userId);
-    imageService.deleteImages(workspace.getId(), EntityType.WORKSPACE);
+    imageService.deleteImages(workspace.getId(), constants.getProjectName(), EntityType.WORKSPACE);
     workspaceMemberService.deleteWorkspaceMembers(id);
     workspaceRepository.delete(workspace);
   }

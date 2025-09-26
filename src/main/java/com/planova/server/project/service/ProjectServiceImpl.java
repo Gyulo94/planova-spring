@@ -5,6 +5,9 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.planova.server.global.constants.Constants;
+import com.planova.server.global.error.ErrorCode;
+import com.planova.server.global.exception.ApiException;
 import com.planova.server.image.entity.EntityType;
 import com.planova.server.image.service.ImageService;
 import com.planova.server.project.entity.Project;
@@ -25,6 +28,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final WorkspaceMemberService workspaceMemberService;
   private final ProjectRepository projectRepository;
   private final ImageService imageService;
+  private final Constants constants;
   private final WorkspaceService workspaceService;
 
   @Override
@@ -42,10 +46,55 @@ public class ProjectServiceImpl implements ProjectService {
     Workspace workspace = workspaceService.getWorkspaceEntityById(request.getWorkspaceId());
     workspaceMemberService.validateWorkspaceAdmin(request.getWorkspaceId(), userId);
     Project newProject = projectRepository.save(ProjectRequest.toEntity(request, workspace));
-    String newImage = imageService.createImages(newProject.getId(), List.of(request.getImage()), EntityType.PROJECT)
-        .get(0);
+    String newImage = "";
+    if (!request.getImage().isEmpty()) {
+      newImage = imageService.createImages(newProject.getId(), List.of(request.getImage()), EntityType.PROJECT)
+          .get(0);
+    }
     ProjectResponse response = ProjectResponse.fromEntity(newProject, newImage);
     return response;
   }
 
+  public Project getProjectEntityById(UUID id) {
+    return findProjectEntityById(id);
+  }
+
+  private Project findProjectEntityById(UUID id) {
+    Project response = projectRepository.findById(id).orElseThrow(
+        () -> new ApiException(ErrorCode.PROJECT_NOT_FOUND));
+    return response;
+  }
+
+  @Override
+  public ProjectResponse findProjectById(UUID id, UUID userId) {
+    Project project = getProjectEntityById(id);
+    workspaceMemberService.validateWorkspaceMember(project.getWorkspace().getId(), userId);
+    ProjectResponse response = ProjectResponse.fromEntity(project, imageService);
+    return response;
+  }
+
+  @Transactional
+  @Override
+  public ProjectResponse updateProject(UUID id, ProjectRequest request, UUID userId) {
+    Project project = findProjectEntityById(id);
+    Workspace workspace = project.getWorkspace();
+    workspaceService.validateWorkspaceOwner(workspace.getOwner().getId(), userId);
+    project.update(request.getName());
+    String existingImage = imageService.findImagesByEntityId(project.getId(), EntityType.PROJECT).get(0).getUrl();
+    String newImage = imageService
+        .updateImages(project.getId(), List.of(request.getImage()), List.of(existingImage), EntityType.PROJECT)
+        .get(0);
+    ProjectResponse response = ProjectResponse.fromEntity(project, newImage);
+    return response;
+  }
+
+  @Override
+  public void deleteProject(UUID id, UUID userId) {
+    Project project = findProjectEntityById(id);
+    Workspace workspace = project.getWorkspace();
+    workspaceService.validateWorkspaceOwner(workspace.getOwner().getId(), userId);
+    imageService.deleteImages(project.getId(), constants.getProjectName(), EntityType.PROJECT);
+    workspaceMemberService.deleteWorkspaceMembers(id);
+    projectRepository.delete(project);
+  }
 }

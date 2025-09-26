@@ -12,4 +12,10 @@ public interface ProjectService {
 
   ProjectResponse createProject(ProjectRequest request, UUID userId);
 
+  ProjectResponse findProjectById(UUID id, UUID userId);
+
+  ProjectResponse updateProject(UUID id, ProjectRequest request, UUID userId);
+
+  void deleteProject(UUID id, UUID userId);
+
 }

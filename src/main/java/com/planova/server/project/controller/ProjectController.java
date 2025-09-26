@@ -3,9 +3,11 @@ package com.planova.server.project.controller;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +37,13 @@ public class ProjectController {
     return Api.OK(response);
   }
 
+  @GetMapping("{id}")
+  public Api<ProjectResponse> findProjectById(@PathVariable("id") UUID id,
+      @CurrentUser JwtPayload user) {
+    ProjectResponse response = projectService.findProjectById(id, user.getId());
+    return Api.OK(response);
+  }
+
   @PostMapping("create")
   public Api<ProjectResponse> createProject(@Valid @RequestBody ProjectRequest request,
       @CurrentUser JwtPayload user) {
@@ -42,4 +51,17 @@ public class ProjectController {
     return Api.OK(respnose, ResponseMessage.CREATE_PROJECT_SUCCESS);
   }
 
+  @PutMapping("{id}/update")
+  public Api<ProjectResponse> updateProject(@PathVariable("id") UUID id,
+      @Valid @RequestBody ProjectRequest request,
+      @CurrentUser JwtPayload user) {
+    ProjectResponse response = projectService.updateProject(id, request, user.getId());
+    return Api.OK(response, ResponseMessage.UPDATE_PROJECT_SUCCESS);
+  }
+
+  @DeleteMapping("{id}/delete")
+  public Api<String> deleteProject(@PathVariable("id") UUID id, @CurrentUser JwtPayload user) {
+    projectService.deleteProject(id, user.getId());
+    return Api.OK(ResponseMessage.DELETE_PROJECT_SUCCESS);
+  }
 }

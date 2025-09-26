@@ -6,7 +6,6 @@ import com.planova.server.project.entity.Project;
 import com.planova.server.workspace.entity.Workspace;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,8 +24,6 @@ public class ProjectRequest {
   private String name;
 
   private String image;
-
-  @NotNull(message = "워크스페이스 ID는 필수 입력값입니다.")
   private UUID workspaceId;
 
   public static Project toEntity(ProjectRequest request, Workspace workspace) {

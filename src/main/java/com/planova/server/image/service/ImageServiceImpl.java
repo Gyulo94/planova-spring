@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
@@ -164,32 +165,31 @@ public class ImageServiceImpl implements ImageService {
   }
 
   @Override
-  public void deleteImages(UUID entityId, EntityType entityType) {
+  public void deleteImages(UUID entityId, String serviceName, EntityType entityType) {
     ImageRequest newRequest = ImageRequest.builder()
         .id(entityId)
+        .serviceName(serviceName)
         .entity(entityType.name().toLowerCase())
         .build();
 
-    List<String> response = webClient.put()
-        .uri("/planova/update")
-        .contentType(MediaType.APPLICATION_JSON)
-        .bodyValue(newRequest)
-        .retrieve()
-        .bodyToMono(new ParameterizedTypeReference<List<String>>() {
-        })
-        .block();
+    try {
+      webClient.method(HttpMethod.DELETE)
+          .uri("/planova/delete")
+          .contentType(MediaType.APPLICATION_JSON)
+          .bodyValue(newRequest)
+          .retrieve()
+          .bodyToMono(String.class)
+          .block();
 
-    if (response == null) {
+      List<Image> existingImageEntities = imageRepository.findByEntityIdAndEntityType(entityId, entityType);
+      if (!existingImageEntities.isEmpty()) {
+        imageRepository.deleteAll(existingImageEntities);
+        LOGGER.info("기존 이미지 {} 개 삭제 완료", existingImageEntities.size());
+      }
+
+    } catch (Exception e) {
+      LOGGER.error("이미지 삭제 실패: {}", e.getMessage(), e);
       throw new ApiException(ErrorCode.SAVE_IMAGE_FAILED);
-    }
-
-    LOGGER.info("NestJS 서버 응답: {}", response);
-
-    // 기존 이미지 데이터 삭제
-    List<Image> existingImageEntities = imageRepository.findByEntityIdAndEntityType(entityId, entityType);
-    if (!existingImageEntities.isEmpty()) {
-      imageRepository.deleteAll(existingImageEntities);
-      LOGGER.info("기존 이미지 {} 개 삭제 완료", existingImageEntities.size());
     }
   }
 }
