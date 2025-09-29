@@ -73,4 +73,5 @@ tasks.named('test') {
 bootRun {
     systemProperties = System.properties
     systemProperties.put("project.root", project.rootDir.getAbsolutePath())
+		sourceResources sourceSets.main
 }

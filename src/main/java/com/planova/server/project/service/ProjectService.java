@@ -3,6 +3,7 @@ package com.planova.server.project.service;
 import java.util.List;
 import java.util.UUID;
 
+import com.planova.server.project.entity.Project;
 import com.planova.server.project.request.ProjectRequest;
 import com.planova.server.project.response.ProjectResponse;
 
@@ -15,6 +16,8 @@ public interface ProjectService {
   ProjectResponse findProjectById(UUID id, UUID userId);
 
   ProjectResponse updateProject(UUID id, ProjectRequest request, UUID userId);
+
+  Project getProjectEntityById(UUID id);
 
   void deleteProject(UUID id, UUID userId);
 
