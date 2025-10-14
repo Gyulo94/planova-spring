@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.planova.server.project.entity.Project;
+import com.planova.server.task.request.TaskRequest;
 import com.planova.server.user.entity.User;
 
 import jakarta.persistence.Column;
@@ -68,4 +69,14 @@ public class Task {
   @Min(1000)
   @Max(1000000)
   private int position;
+
+  public void update(TaskRequest request, User assignee) {
+    this.name = request.getName();
+    this.description = request.getDescription();
+    this.status = request.getStatus();
+    this.priority = request.getPriority();
+    this.startDate = request.getStartDate();
+    this.dueDate = request.getDueDate();
+    this.assignee = assignee;
+  }
 }

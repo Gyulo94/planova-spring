@@ -43,7 +43,8 @@ public enum ErrorCode implements ErrorCodeInterface {
   MEMBER_NOT_ADMIN(HttpStatus.FORBIDDEN.value(), "워크스페이스 관리자 권한이 없습니다."),
 
   SAVE_IMAGE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "이미지 저장에 실패했습니다."),
-  ;
+
+  TASK_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 작업입니다.");
 
   private final Integer httpStatusCode;
   private final String message;
