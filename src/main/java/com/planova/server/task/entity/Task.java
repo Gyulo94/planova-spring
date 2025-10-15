@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.planova.server.project.entity.Project;
+import com.planova.server.task.request.TaskBulkRequest;
 import com.planova.server.task.request.TaskRequest;
 import com.planova.server.user.entity.User;
 
@@ -78,5 +79,10 @@ public class Task {
     this.startDate = request.getStartDate();
     this.dueDate = request.getDueDate();
     this.assignee = assignee;
+  }
+
+  public void updateStatusOrPosition(TaskBulkRequest request) {
+    this.status = request.getStatus();
+    this.position = request.getPosition();
   }
 }

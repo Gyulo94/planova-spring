@@ -19,6 +19,7 @@ import com.planova.server.global.annotation.CurrentUser;
 import com.planova.server.global.api.Api;
 import com.planova.server.global.jwt.JwtPayload;
 import com.planova.server.global.message.ResponseMessage;
+import com.planova.server.task.request.TaskBulkRequest;
 import com.planova.server.task.request.TaskFilterRequest;
 import com.planova.server.task.request.TaskRequest;
 import com.planova.server.task.response.TaskResponse;
@@ -62,6 +63,13 @@ public class TaskController {
       @Valid @RequestBody TaskRequest request, @CurrentUser JwtPayload user) {
     TaskResponse response = taskService.updateTask(id, request, user.getId());
     return Api.OK(response, ResponseMessage.UPDATE_TASK_SUCCESS);
+  }
+
+  @PutMapping("bulk-update")
+  public Api<Void> bulkUpdateTasks(@Valid @RequestBody List<TaskBulkRequest> requests,
+      @CurrentUser JwtPayload user) {
+    taskService.bulkUpdateTasks(requests, user.getId());
+    return Api.OK(ResponseMessage.UPDATE_TASK_SUCCESS);
   }
 
   @DeleteMapping("{id}/delete")

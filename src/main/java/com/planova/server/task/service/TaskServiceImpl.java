@@ -17,6 +17,7 @@ import com.planova.server.project.service.ProjectService;
 import com.planova.server.task.entity.Task;
 import com.planova.server.task.entity.TaskStatus;
 import com.planova.server.task.repository.TaskRepository;
+import com.planova.server.task.request.TaskBulkRequest;
 import com.planova.server.task.request.TaskFilterRequest;
 import com.planova.server.task.request.TaskRequest;
 import com.planova.server.task.response.TaskResponse;
@@ -107,6 +108,24 @@ public class TaskServiceImpl implements TaskService {
     }
   }
 
+  @Transactional
+  @Override
+  public void bulkUpdateTasks(List<TaskBulkRequest> requests, UUID userId) {
+    for (TaskBulkRequest request : requests) {
+      Task task = findTaskEntityById(request.getId());
+      UUID workspaceId = task.getProject().getWorkspace().getId();
+      workspaceMemberService.validateWorkspaceMember(workspaceId, userId);
+      boolean isAssignee = task.getAssignee().getId().equals(userId);
+
+      if (!isAssignee) {
+        workspaceMemberService.validateWorkspaceAdmin(workspaceId, userId);
+        task.updateStatusOrPosition(request);
+      } else {
+        task.updateStatusOrPosition(request);
+      }
+    }
+  }
+
   @Override
   public void deleteTask(UUID id, UUID userId) {
     Task task = findTaskEntityById(id);
@@ -120,5 +139,4 @@ public class TaskServiceImpl implements TaskService {
       taskRepository.deleteById(id);
     }
   }
-
 }
