@@ -3,6 +3,7 @@ package com.planova.server.task.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.planova.server.project.entity.Project;
@@ -70,6 +71,10 @@ public class Task {
   @Min(1000)
   @Max(1000000)
   private int position;
+
+  @CreatedDate
+  @Column(name = "created_at", updatable = false)
+  private LocalDateTime createdAt;
 
   public void update(TaskRequest request, User assignee) {
     this.name = request.getName();

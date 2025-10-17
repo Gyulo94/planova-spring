@@ -46,9 +46,9 @@ public class TaskController {
   @GetMapping("{projectId}/all")
   public Api<List<TaskResponse>> findTasks(@PathVariable("projectId") UUID projectId,
       @ModelAttribute TaskFilterRequest request) {
-    LOGGER.info("request: {}", request);
+    // LOGGER.info("request: {}", request);
     List<TaskResponse> responses = taskService.findTasks(projectId, request);
-    LOGGER.info("response: {}", responses);
+    // LOGGER.info("response: {}", responses);
     return Api.OK(responses);
   }
 

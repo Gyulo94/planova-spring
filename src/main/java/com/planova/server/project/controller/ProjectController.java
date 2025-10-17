@@ -19,6 +19,8 @@ import com.planova.server.global.message.ResponseMessage;
 import com.planova.server.project.request.ProjectRequest;
 import com.planova.server.project.response.ProjectResponse;
 import com.planova.server.project.service.ProjectService;
+import com.planova.server.task.response.TotalCountResponse;
+import com.planova.server.task.service.TaskService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class ProjectController {
 
   private final ProjectService projectService;
+  private final TaskService taskService;
 
   @GetMapping("{workspaceId}/all")
   public Api<List<ProjectResponse>> findProjectsByWorkspaceId(@PathVariable("workspaceId") UUID workspaceId,
@@ -41,6 +44,13 @@ public class ProjectController {
   public Api<ProjectResponse> findProjectById(@PathVariable("id") UUID id,
       @CurrentUser JwtPayload user) {
     ProjectResponse response = projectService.findProjectById(id, user.getId());
+    return Api.OK(response);
+  }
+
+  @GetMapping("{id}/analytics")
+  public Api<TotalCountResponse> findTaskCountsByProjectId(@PathVariable("id") UUID id,
+      @CurrentUser JwtPayload user) {
+    TotalCountResponse response = taskService.findTaskCountsByProjectId(id, user.getId());
     return Api.OK(response);
   }
 

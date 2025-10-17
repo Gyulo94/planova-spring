@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
     user.updatePassword(encodedPassword);
     redisTemplate.delete(token);
 
-    LOGGER.info("비밀번호 재설정 완료. Email: {}", email);
+    // LOGGER.info("비밀번호 재설정 완료. Email: {}", email);
     return null;
   }
 

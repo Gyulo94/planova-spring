@@ -1,5 +1,6 @@
 package com.planova.server.task.service;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.planova.server.global.error.ErrorCode;
 import com.planova.server.global.exception.ApiException;
+import com.planova.server.global.util.DateUtils;
 import com.planova.server.image.service.ImageService;
 import com.planova.server.project.entity.Project;
 import com.planova.server.project.response.ProjectResponse;
@@ -20,13 +22,17 @@ import com.planova.server.task.repository.TaskRepository;
 import com.planova.server.task.request.TaskBulkRequest;
 import com.planova.server.task.request.TaskFilterRequest;
 import com.planova.server.task.request.TaskRequest;
+import com.planova.server.task.response.TaskCountResponse;
 import com.planova.server.task.response.TaskResponse;
+import com.planova.server.task.response.TotalCountResponse;
 import com.planova.server.user.entity.User;
 import com.planova.server.user.service.UserService;
 import com.planova.server.workspaceMember.service.WorkspaceMemberService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
@@ -138,5 +144,28 @@ public class TaskServiceImpl implements TaskService {
     } else {
       taskRepository.deleteById(id);
     }
+  }
+
+  @Override
+  public TotalCountResponse findTaskCountsByProjectId(UUID projectId, UUID userId) {
+    Project project = projectService.getProjectEntityById(projectId);
+    workspaceMemberService.validateWorkspaceMember(project.getWorkspace().getId(), userId);
+
+    DateUtils.DateRange thisMonth = DateUtils.thisMonthRange();
+    DateUtils.DateRange lastMonth = DateUtils.lastMonthRange();
+
+    LocalDateTime thisStart = thisMonth.getStart();
+    LocalDateTime thisEnd = thisMonth.getEnd();
+
+    LocalDateTime lastStart = lastMonth.getStart();
+    LocalDateTime lastEnd = lastMonth.getEnd();
+
+    TaskCountResponse thisMonthCounts = taskRepository.taskCountsMonthlyByProjectId(projectId, thisStart, thisEnd);
+    TaskCountResponse lastMonthCounts = taskRepository.taskCountsMonthlyByProjectId(projectId, lastStart, lastEnd);
+    TaskCountResponse totalPeriodCounts = taskRepository.taskCountsTotalByProjectId(projectId);
+
+    TotalCountResponse response = TotalCountResponse.from(thisMonthCounts, lastMonthCounts, totalPeriodCounts);
+
+    return response;
   }
 }

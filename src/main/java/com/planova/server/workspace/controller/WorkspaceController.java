@@ -81,7 +81,8 @@ public class WorkspaceController {
   public Api<WorkspaceResponse> updateWorkspace(@PathVariable("id") UUID id,
       @Valid @RequestBody WorkspaceRequest request,
       @CurrentUser JwtPayload user) {
-    LOGGER.warn("워크스페이스 업데이트 컨트롤러 진입 id: {}, request: {}, user: {}", id, request, user);
+    // LOGGER.warn("워크스페이스 업데이트 컨트롤러 진입 id: {}, request: {}, user: {}", id, request,
+    // user);
     WorkspaceResponse response = workspaceService.updateWorkspace(id, request, user.getId());
     return Api.OK(response, ResponseMessage.UPDATE_WORKSPACE_SUCCESS);
   }

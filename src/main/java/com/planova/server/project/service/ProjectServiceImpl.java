@@ -97,4 +97,5 @@ public class ProjectServiceImpl implements ProjectService {
     workspaceMemberService.deleteWorkspaceMembers(id);
     projectRepository.delete(project);
   }
+
 }

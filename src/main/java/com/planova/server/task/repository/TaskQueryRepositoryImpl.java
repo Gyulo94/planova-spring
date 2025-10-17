@@ -2,6 +2,7 @@ package com.planova.server.task.repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +12,13 @@ import org.springframework.stereotype.Repository;
 
 import com.planova.server.task.entity.QTask;
 import com.planova.server.task.entity.Task;
+import com.planova.server.task.entity.TaskStatus;
 import com.planova.server.task.request.TaskFilterRequest;
+import com.planova.server.task.response.TaskCountResponse;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -22,10 +28,11 @@ import lombok.RequiredArgsConstructor;
 public class TaskQueryRepositoryImpl implements TaskQueryRepository {
 
   private final JPAQueryFactory queryBuilder;
+  private final LocalDateTime CURRENT_DATE = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+  private final QTask task = QTask.task;
 
   @Override
   public List<Task> findByProjectIdAndFilters(UUID projectId, TaskFilterRequest request) {
-    QTask task = QTask.task;
     List<BooleanExpression> predicates = new ArrayList<>();
 
     predicates.add(task.project.id.eq(projectId));
@@ -60,5 +67,61 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
         return null;
       }
     }
+  }
+
+  @Override
+  public TaskCountResponse taskCountsMonthlyByProjectId(UUID projectId, LocalDateTime start, LocalDateTime end) {
+    return queryBuilder
+        .select(Projections.constructor(TaskCountResponse.class,
+            createTotalCountExpression(),
+            createAssignedCountExpression(),
+            createIncompleteCountExpression(),
+            createCompleteCountExpression(),
+            createOverdueCountExpression()))
+        .from(task)
+        .where(task.project.id.eq(projectId)
+            .and(task.createdAt.between(start, end)))
+        .fetchOne();
+  }
+
+  @Override
+  public TaskCountResponse taskCountsTotalByProjectId(UUID projectId) {
+    return queryBuilder
+        .select(Projections.constructor(TaskCountResponse.class,
+            createTotalCountExpression(),
+            createAssignedCountExpression(),
+            createIncompleteCountExpression(),
+            createCompleteCountExpression(),
+            createOverdueCountExpression()))
+        .from(task)
+        .where(task.project.id.eq(projectId))
+        .fetchOne();
+  }
+
+  private NumberExpression<Long> createTotalCountExpression() {
+    return Expressions.numberTemplate(Long.class, "coalesce(count(distinct {0}), 0)", task.id);
+  }
+
+  private NumberExpression<Long> createAssignedCountExpression() {
+    return Expressions.numberTemplate(Long.class, "coalesce(sum(case when {0} is not null then 1 else 0 end), 0)",
+        task.assignee);
+  }
+
+  private NumberExpression<Long> createIncompleteCountExpression() {
+    return Expressions.numberTemplate(Long.class,
+        "coalesce(sum(case when {0} <> {1} then 1 else 0 end), 0)",
+        task.status, TaskStatus.COMPLETED);
+  }
+
+  private NumberExpression<Long> createCompleteCountExpression() {
+    return Expressions.numberTemplate(Long.class,
+        "coalesce(sum(case when {0} = {1} then 1 else 0 end), 0)",
+        task.status, TaskStatus.COMPLETED);
+  }
+
+  private NumberExpression<Long> createOverdueCountExpression() {
+    return Expressions.numberTemplate(Long.class,
+        "coalesce(sum(case when {0} < {1} and {2} <> {3} then 1 else 0 end), 0)",
+        task.dueDate, CURRENT_DATE, task.status, TaskStatus.COMPLETED);
   }
 }

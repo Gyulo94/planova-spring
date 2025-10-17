@@ -7,6 +7,7 @@ import com.planova.server.task.request.TaskBulkRequest;
 import com.planova.server.task.request.TaskFilterRequest;
 import com.planova.server.task.request.TaskRequest;
 import com.planova.server.task.response.TaskResponse;
+import com.planova.server.task.response.TotalCountResponse;
 
 public interface TaskService {
 
@@ -21,5 +22,7 @@ public interface TaskService {
   void deleteTask(UUID id, UUID userId);
 
   void bulkUpdateTasks(List<TaskBulkRequest> requests, UUID userId);
+
+  TotalCountResponse findTaskCountsByProjectId(UUID projectId, UUID userId);
 
 }
