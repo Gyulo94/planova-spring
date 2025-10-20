@@ -1,13 +1,16 @@
 package com.planova.server.workspace.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.planova.server.project.entity.Project;
 import com.planova.server.user.entity.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -16,6 +19,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,6 +51,9 @@ public class Workspace {
   @CreatedDate
   @Column(name = "created_at", updatable = false)
   private LocalDateTime createdAt;
+
+  @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Project> projects;
 
   public void update(String name) {
     this.name = name;

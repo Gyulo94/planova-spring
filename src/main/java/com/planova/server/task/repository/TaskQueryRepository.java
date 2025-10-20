@@ -16,4 +16,11 @@ public interface TaskQueryRepository {
 
   TaskCountResponse taskCountsTotalByProjectId(UUID projectId);
 
+  TaskCountResponse taskCountsMonthlyByWorkspaceId(UUID workspaceId, LocalDateTime start, LocalDateTime end,
+      UUID userId);
+
+  TaskCountResponse taskCountsTotalByWorkspaceId(UUID workspaceId, UUID userId);
+
+  List<Task> findByWorkspaceIdAndFilters(UUID workspaceId, TaskFilterRequest request, UUID userId);
+
 }

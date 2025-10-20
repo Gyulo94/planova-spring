@@ -22,6 +22,7 @@ public class TaskFilterRequest {
   private TaskStatus status;
   private TaskPriority priority;
   private UUID assigneeId;
+  private UUID projectId;
   private String search;
   private String startDate;
   private String dueDate;

@@ -25,4 +25,8 @@ public interface TaskService {
 
   TotalCountResponse findTaskCountsByProjectId(UUID projectId, UUID userId);
 
+  TotalCountResponse findTaskCountsByWorkspaceId(UUID workspaceId, UUID userId);
+
+  List<TaskResponse> findTasksByWorkspace(UUID workspaceId, TaskFilterRequest request, UUID id);
+
 }

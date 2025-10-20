@@ -18,6 +18,8 @@ import com.planova.server.global.annotation.CurrentUser;
 import com.planova.server.global.api.Api;
 import com.planova.server.global.jwt.JwtPayload;
 import com.planova.server.global.message.ResponseMessage;
+import com.planova.server.task.response.TotalCountResponse;
+import com.planova.server.task.service.TaskService;
 import com.planova.server.workspace.request.WorkspaceRequest;
 import com.planova.server.workspace.response.WorkspaceResponse;
 import com.planova.server.workspace.service.WorkspaceService;
@@ -31,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class WorkspaceController {
 
   private final WorkspaceService workspaceService;
+  private final TaskService taskService;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceController.class);
 
@@ -55,6 +58,15 @@ public class WorkspaceController {
   @GetMapping("{id}")
   public Api<WorkspaceResponse> findWorkspaceById(@PathVariable("id") UUID id, @CurrentUser JwtPayload user) {
     WorkspaceResponse response = workspaceService.findWorkspaceById(id, user.getId());
+    return Api.OK(response);
+  }
+
+  @GetMapping("{id}/analytics")
+  public Api<TotalCountResponse> findTaskCountsByWorkspaceId(@PathVariable("id") UUID id,
+      @CurrentUser JwtPayload user) {
+    LOGGER.info("워크스페이스 분석 데이터 조회 컨트롤러 진입 id: {}, user: {}", id, user);
+    TotalCountResponse response = taskService.findTaskCountsByWorkspaceId(id, user.getId());
+    LOGGER.info("워크스페이스 분석 데이터 조회 컨트롤러 종료 response: {}", response);
     return Api.OK(response);
   }
 

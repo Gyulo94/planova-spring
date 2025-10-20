@@ -27,6 +27,8 @@ import com.planova.server.task.response.TaskResponse;
 import com.planova.server.task.response.TotalCountResponse;
 import com.planova.server.user.entity.User;
 import com.planova.server.user.service.UserService;
+import com.planova.server.workspace.entity.Workspace;
+import com.planova.server.workspace.service.WorkspaceService;
 import com.planova.server.workspaceMember.service.WorkspaceMemberService;
 
 import lombok.RequiredArgsConstructor;
@@ -41,6 +43,7 @@ public class TaskServiceImpl implements TaskService {
   private final ProjectService projectService;
   private final ImageService imageService;
   private final WorkspaceMemberService workspaceMemberService;
+  private final WorkspaceService workspaceService;
 
   @Override
   public TaskResponse createTask(TaskRequest request, UUID userId) {
@@ -68,6 +71,20 @@ public class TaskServiceImpl implements TaskService {
     ProjectResponse projectResponse = ProjectResponse.fromEntity(project, imageService);
     List<TaskResponse> responses = tasks.stream()
         .map(task -> TaskResponse.fromEntity(task, projectResponse))
+        .toList();
+    return responses;
+  }
+
+  @Override
+  public List<TaskResponse> findTasksByWorkspace(UUID workspaceId, TaskFilterRequest request, UUID userId) {
+    Workspace workspace = workspaceService.getWorkspaceEntityById(workspaceId);
+    workspaceMemberService.validateWorkspaceMember(workspace.getId(), userId);
+    List<Task> tasks = taskRepository.findByWorkspaceIdAndFilters(workspaceId, request, userId);
+    List<TaskResponse> responses = tasks.stream()
+        .map(task -> {
+          ProjectResponse projectResponse = ProjectResponse.fromEntity(task.getProject(), imageService);
+          return TaskResponse.fromEntity(task, projectResponse);
+        })
         .toList();
     return responses;
   }
@@ -163,6 +180,31 @@ public class TaskServiceImpl implements TaskService {
     TaskCountResponse thisMonthCounts = taskRepository.taskCountsMonthlyByProjectId(projectId, thisStart, thisEnd);
     TaskCountResponse lastMonthCounts = taskRepository.taskCountsMonthlyByProjectId(projectId, lastStart, lastEnd);
     TaskCountResponse totalPeriodCounts = taskRepository.taskCountsTotalByProjectId(projectId);
+
+    TotalCountResponse response = TotalCountResponse.from(thisMonthCounts, lastMonthCounts, totalPeriodCounts);
+
+    return response;
+  }
+
+  @Override
+  public TotalCountResponse findTaskCountsByWorkspaceId(UUID workspaceId, UUID userId) {
+    Workspace workspace = workspaceService.getWorkspaceEntityById(workspaceId);
+    workspaceMemberService.validateWorkspaceMember(workspace.getId(), userId);
+
+    DateUtils.DateRange thisMonth = DateUtils.thisMonthRange();
+    DateUtils.DateRange lastMonth = DateUtils.lastMonthRange();
+
+    LocalDateTime thisStart = thisMonth.getStart();
+    LocalDateTime thisEnd = thisMonth.getEnd();
+
+    LocalDateTime lastStart = lastMonth.getStart();
+    LocalDateTime lastEnd = lastMonth.getEnd();
+
+    TaskCountResponse thisMonthCounts = taskRepository.taskCountsMonthlyByWorkspaceId(workspaceId, thisStart, thisEnd,
+        userId);
+    TaskCountResponse lastMonthCounts = taskRepository.taskCountsMonthlyByWorkspaceId(workspaceId, lastStart, lastEnd,
+        userId);
+    TaskCountResponse totalPeriodCounts = taskRepository.taskCountsTotalByWorkspaceId(workspaceId, userId);
 
     TotalCountResponse response = TotalCountResponse.from(thisMonthCounts, lastMonthCounts, totalPeriodCounts);
 

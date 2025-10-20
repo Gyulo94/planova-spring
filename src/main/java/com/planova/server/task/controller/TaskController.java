@@ -43,12 +43,19 @@ public class TaskController {
     return Api.OK(response, ResponseMessage.CREATE_TASK_SUCCESS);
   }
 
-  @GetMapping("{projectId}/all")
+  @GetMapping("project/{projectId}/all")
   public Api<List<TaskResponse>> findTasks(@PathVariable("projectId") UUID projectId,
       @ModelAttribute TaskFilterRequest request) {
     // LOGGER.info("request: {}", request);
     List<TaskResponse> responses = taskService.findTasks(projectId, request);
     // LOGGER.info("response: {}", responses);
+    return Api.OK(responses);
+  }
+
+  @GetMapping("workspace/{workspaceId}/all")
+  public Api<List<TaskResponse>> findTasksByWorkspace(@PathVariable("workspaceId") UUID workspaceId,
+      @ModelAttribute TaskFilterRequest request, @CurrentUser JwtPayload user) {
+    List<TaskResponse> responses = taskService.findTasksByWorkspace(workspaceId, request, user.getId());
     return Api.OK(responses);
   }
 

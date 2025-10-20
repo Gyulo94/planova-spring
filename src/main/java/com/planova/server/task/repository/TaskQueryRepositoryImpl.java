@@ -48,6 +48,25 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
         .fetch();
   }
 
+  @Override
+  public List<Task> findByWorkspaceIdAndFilters(UUID workspaceId, TaskFilterRequest request, UUID userId) {
+    List<BooleanExpression> predicates = new ArrayList<>();
+
+    predicates.add(task.project.workspace.id.eq(workspaceId));
+    addIfNotNull(predicates, request.getStatus(), v -> task.status.eq(v));
+    addIfNotNull(predicates, request.getPriority(), v -> task.priority.eq(v));
+    addIfNotNull(predicates, request.getAssigneeId(), v -> task.assignee.id.eq(v));
+    addIfNotNull(predicates, request.getProjectId(), v -> task.project.id.eq(v));
+    addIfNotNull(predicates, parseDateTime(request.getStartDate()), v -> task.startDate.goe(v));
+    addIfNotNull(predicates, parseDateTime(request.getDueDate()), v -> task.dueDate.goe(v));
+    addIfNotNull(predicates, request.getSearch(), v -> task.name.containsIgnoreCase(v));
+    predicates.add(task.assignee.id.eq(userId));
+
+    return queryBuilder.selectFrom(task)
+        .where(predicates.toArray(new BooleanExpression[0]))
+        .fetch();
+  }
+
   private <T> void addIfNotNull(List<BooleanExpression> predicates, T value,
       java.util.function.Function<T, BooleanExpression> expr) {
     if (value != null) {
@@ -98,6 +117,37 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
         .fetchOne();
   }
 
+  @Override
+  public TaskCountResponse taskCountsMonthlyByWorkspaceId(UUID workspaceId, LocalDateTime start,
+      LocalDateTime end, UUID userId) {
+    return queryBuilder
+        .select(Projections.constructor(TaskCountResponse.class,
+            createTotalCountExpression(),
+            createAssignedCountExpression(),
+            createIncompleteCountExpression(),
+            createCompleteCountExpression(),
+            createOverdueCountExpression()))
+        .from(task)
+        .where(task.project.workspace.id.eq(workspaceId)
+            .and(task.createdAt.between(start, end))
+            .and(task.assignee.id.eq(userId)))
+        .fetchOne();
+  }
+
+  @Override
+  public TaskCountResponse taskCountsTotalByWorkspaceId(UUID workspaceId, UUID userId) {
+    return queryBuilder
+        .select(Projections.constructor(TaskCountResponse.class,
+            createTotalCountExpression(),
+            createAssignedCountExpression(),
+            createIncompleteCountExpression(),
+            createCompleteCountExpression(),
+            createOverdueCountExpression()))
+        .from(task)
+        .where(task.project.workspace.id.eq(workspaceId).and(task.assignee.id.eq(userId)))
+        .fetchOne();
+  }
+
   private NumberExpression<Long> createTotalCountExpression() {
     return Expressions.numberTemplate(Long.class, "coalesce(count(distinct {0}), 0)", task.id);
   }
@@ -124,4 +174,5 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
         "coalesce(sum(case when {0} < {1} and {2} <> {3} then 1 else 0 end), 0)",
         task.dueDate, CURRENT_DATE, task.status, TaskStatus.COMPLETED);
   }
+
 }

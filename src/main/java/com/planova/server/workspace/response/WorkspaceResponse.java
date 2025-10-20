@@ -1,11 +1,13 @@
 package com.planova.server.workspace.response;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import com.planova.server.image.entity.EntityType;
 import com.planova.server.image.entity.Image;
 import com.planova.server.image.service.ImageService;
+import com.planova.server.project.response.ProjectResponse;
 import com.planova.server.user.response.UserResponse;
 import com.planova.server.workspace.entity.Workspace;
 
@@ -27,6 +29,7 @@ public class WorkspaceResponse {
   private String inviteCode;
   private UserResponse owner;
   private LocalDateTime createdAt;
+  private List<ProjectResponse> projects;
 
   public static WorkspaceResponse fromEntity(Workspace workspace, String image) {
     return WorkspaceResponse.builder()
@@ -50,6 +53,9 @@ public class WorkspaceResponse {
         .owner(UserResponse.fromEntity(workspace.getOwner()))
         .inviteCode(workspace.getInviteCode())
         .createdAt(workspace.getCreatedAt())
+        .projects(workspace.getProjects().stream()
+            .map(project -> ProjectResponse.fromEntity(project, imageService))
+            .toList())
         .build();
   }
 }
