@@ -45,6 +45,7 @@ public class TaskServiceImpl implements TaskService {
   private final WorkspaceMemberService workspaceMemberService;
   private final WorkspaceService workspaceService;
 
+  @Transactional
   @Override
   public TaskResponse createTask(TaskRequest request, UUID userId) {
     User assignee = userService.getUserEntityById(request.getAssigneeId());
@@ -76,10 +77,24 @@ public class TaskServiceImpl implements TaskService {
   }
 
   @Override
-  public List<TaskResponse> findTasksByWorkspace(UUID workspaceId, TaskFilterRequest request, UUID userId) {
+  public List<TaskResponse> findMyTasksByWorkspace(UUID workspaceId, TaskFilterRequest request, UUID userId) {
     Workspace workspace = workspaceService.getWorkspaceEntityById(workspaceId);
     workspaceMemberService.validateWorkspaceMember(workspace.getId(), userId);
     List<Task> tasks = taskRepository.findByWorkspaceIdAndFilters(workspaceId, request, userId);
+    List<TaskResponse> responses = tasks.stream()
+        .map(task -> {
+          ProjectResponse projectResponse = ProjectResponse.fromEntity(task.getProject(), imageService);
+          return TaskResponse.fromEntity(task, projectResponse);
+        })
+        .toList();
+    return responses;
+  }
+
+  @Override
+  public List<TaskResponse> findTasksByWorkspace(UUID workspaceId, TaskFilterRequest request, UUID userId) {
+    Workspace workspace = workspaceService.getWorkspaceEntityById(workspaceId);
+    workspaceMemberService.validateWorkspaceMember(workspace.getId(), userId);
+    List<Task> tasks = taskRepository.findByWorkspaceIdAndFilters(workspaceId, request, null);
     List<TaskResponse> responses = tasks.stream()
         .map(task -> {
           ProjectResponse projectResponse = ProjectResponse.fromEntity(task.getProject(), imageService);
@@ -93,6 +108,11 @@ public class TaskServiceImpl implements TaskService {
     Task task = taskRepository.findById(id)
         .orElseThrow(() -> new ApiException(ErrorCode.TASK_NOT_FOUND));
     return task;
+  }
+
+  @Override
+  public Task getTaskEntityById(UUID id) {
+    return findTaskEntityById(id);
   }
 
   @Override
@@ -187,6 +207,31 @@ public class TaskServiceImpl implements TaskService {
   }
 
   @Override
+  public TotalCountResponse findMyTaskCountsByWorkspaceId(UUID workspaceId, UUID userId) {
+    Workspace workspace = workspaceService.getWorkspaceEntityById(workspaceId);
+    workspaceMemberService.validateWorkspaceMember(workspace.getId(), userId);
+
+    DateUtils.DateRange thisMonth = DateUtils.thisMonthRange();
+    DateUtils.DateRange lastMonth = DateUtils.lastMonthRange();
+
+    LocalDateTime thisStart = thisMonth.getStart();
+    LocalDateTime thisEnd = thisMonth.getEnd();
+
+    LocalDateTime lastStart = lastMonth.getStart();
+    LocalDateTime lastEnd = lastMonth.getEnd();
+
+    TaskCountResponse thisMonthCounts = taskRepository.myTaskCountsMonthlyByWorkspaceId(workspaceId, thisStart, thisEnd,
+        userId);
+    TaskCountResponse lastMonthCounts = taskRepository.myTaskCountsMonthlyByWorkspaceId(workspaceId, lastStart, lastEnd,
+        userId);
+    TaskCountResponse totalPeriodCounts = taskRepository.myTaskCountsTotalByWorkspaceId(workspaceId, userId);
+
+    TotalCountResponse response = TotalCountResponse.from(thisMonthCounts, lastMonthCounts, totalPeriodCounts);
+
+    return response;
+  }
+
+  @Override
   public TotalCountResponse findTaskCountsByWorkspaceId(UUID workspaceId, UUID userId) {
     Workspace workspace = workspaceService.getWorkspaceEntityById(workspaceId);
     workspaceMemberService.validateWorkspaceMember(workspace.getId(), userId);
@@ -200,14 +245,13 @@ public class TaskServiceImpl implements TaskService {
     LocalDateTime lastStart = lastMonth.getStart();
     LocalDateTime lastEnd = lastMonth.getEnd();
 
-    TaskCountResponse thisMonthCounts = taskRepository.taskCountsMonthlyByWorkspaceId(workspaceId, thisStart, thisEnd,
-        userId);
-    TaskCountResponse lastMonthCounts = taskRepository.taskCountsMonthlyByWorkspaceId(workspaceId, lastStart, lastEnd,
-        userId);
-    TaskCountResponse totalPeriodCounts = taskRepository.taskCountsTotalByWorkspaceId(workspaceId, userId);
+    TaskCountResponse thisMonthCounts = taskRepository.taskCountsMonthlyByWorkspaceId(workspaceId, thisStart, thisEnd);
+    TaskCountResponse lastMonthCounts = taskRepository.taskCountsMonthlyByWorkspaceId(workspaceId, lastStart, lastEnd);
+    TaskCountResponse totalPeriodCounts = taskRepository.taskCountsTotalByWorkspaceId(workspaceId);
 
     TotalCountResponse response = TotalCountResponse.from(thisMonthCounts, lastMonthCounts, totalPeriodCounts);
 
     return response;
   }
+
 }

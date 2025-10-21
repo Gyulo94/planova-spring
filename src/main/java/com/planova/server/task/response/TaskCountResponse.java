@@ -16,7 +16,24 @@ public class TaskCountResponse {
   private Long assignedCount;
   private Long incompleteCount;
   private Long completedCount;
+  private Long inProgressCount;
+  private Long todoCount;
   private Long overdueCount;
+  private Long inReviewCount;
+  private Long backlogCount;
+
+  public TaskCountResponse(Long totalCount, Long assignedCount, Long incompleteCount, Long completedCount,
+      Long overdueCount) {
+    this.totalCount = totalCount == null ? 0L : totalCount;
+    this.assignedCount = assignedCount == null ? 0L : assignedCount;
+    this.incompleteCount = incompleteCount == null ? 0L : incompleteCount;
+    this.completedCount = completedCount == null ? 0L : completedCount;
+    this.overdueCount = overdueCount == null ? 0L : overdueCount;
+    this.inProgressCount = 0L;
+    this.todoCount = 0L;
+    this.inReviewCount = 0L;
+    this.backlogCount = 0L;
+  }
 
   public TaskCountResponse getDifferencesFrom(TaskCountResponse lastMonth) {
     if (lastMonth == null) {
@@ -26,6 +43,10 @@ public class TaskCountResponse {
           .incompleteCount(this.incompleteCount)
           .completedCount(this.completedCount)
           .overdueCount(this.overdueCount)
+          .inProgressCount(this.inProgressCount)
+          .todoCount(this.todoCount)
+          .inReviewCount(this.inReviewCount)
+          .backlogCount(this.backlogCount)
           .build();
     }
 
@@ -35,6 +56,10 @@ public class TaskCountResponse {
         .incompleteCount(this.incompleteCount - lastMonth.incompleteCount)
         .completedCount(this.completedCount - lastMonth.completedCount)
         .overdueCount(this.overdueCount - lastMonth.overdueCount)
+        .inProgressCount(this.inProgressCount - lastMonth.inProgressCount)
+        .todoCount(this.todoCount - lastMonth.todoCount)
+        .inReviewCount(this.inReviewCount - lastMonth.inReviewCount)
+        .backlogCount(this.backlogCount - lastMonth.backlogCount)
         .build();
   }
 }

@@ -3,6 +3,7 @@ package com.planova.server.task.service;
 import java.util.List;
 import java.util.UUID;
 
+import com.planova.server.task.entity.Task;
 import com.planova.server.task.request.TaskBulkRequest;
 import com.planova.server.task.request.TaskFilterRequest;
 import com.planova.server.task.request.TaskRequest;
@@ -19,14 +20,20 @@ public interface TaskService {
 
   TaskResponse updateTask(UUID id, TaskRequest request, UUID userId);
 
+  Task getTaskEntityById(UUID id);
+
   void deleteTask(UUID id, UUID userId);
 
   void bulkUpdateTasks(List<TaskBulkRequest> requests, UUID userId);
 
   TotalCountResponse findTaskCountsByProjectId(UUID projectId, UUID userId);
 
+  TotalCountResponse findMyTaskCountsByWorkspaceId(UUID workspaceId, UUID userId);
+
   TotalCountResponse findTaskCountsByWorkspaceId(UUID workspaceId, UUID userId);
 
-  List<TaskResponse> findTasksByWorkspace(UUID workspaceId, TaskFilterRequest request, UUID id);
+  List<TaskResponse> findMyTasksByWorkspace(UUID workspaceId, TaskFilterRequest request, UUID userId);
+
+  List<TaskResponse> findTasksByWorkspace(UUID workspaceId, TaskFilterRequest request, UUID userId);
 
 }

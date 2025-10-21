@@ -13,50 +13,66 @@ import lombok.ToString;
 @Builder
 public class TotalCountResponse {
 
-    private CountDetail totalCount;
-    private CountDetail assignedCount;
-    private CountDetail incompleteCount;
-    private CountDetail completedCount;
-    private CountDetail overdueCount;
+        private CountDetail totalCount;
+        private CountDetail assignedCount;
+        private CountDetail incompleteCount;
+        private CountDetail completedCount;
+        private CountDetail overdueCount;
+        private CountDetail todoCount;
+        private CountDetail inProgressCount;
+        private CountDetail inReviewCount;
+        private CountDetail backlogCount;
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    @ToString
-    public static class CountDetail {
-        private Long total;
-        private Long difference;
-    }
+        @Getter
+        @NoArgsConstructor
+        @AllArgsConstructor
+        @Builder
+        @ToString
+        public static class CountDetail {
+                private Long total;
+                private Long difference;
+        }
 
-    public static TotalCountResponse from(
-            TaskCountResponse thisMonth,
-            TaskCountResponse lastMonth,
-            TaskCountResponse totalPeriod) {
+        public static TotalCountResponse from(
+                        TaskCountResponse thisMonth,
+                        TaskCountResponse lastMonth,
+                        TaskCountResponse totalPeriod) {
 
-        TaskCountResponse monthlyDifferences = thisMonth.getDifferencesFrom(lastMonth);
+                TaskCountResponse monthlyDifferences = thisMonth.getDifferencesFrom(lastMonth);
 
-        return TotalCountResponse.builder()
-                .totalCount(CountDetail.builder()
-                        .total(totalPeriod.getTotalCount())
-                        .difference(monthlyDifferences.getTotalCount())
-                        .build())
-                .assignedCount(CountDetail.builder()
-                        .total(totalPeriod.getAssignedCount())
-                        .difference(monthlyDifferences.getAssignedCount())
-                        .build())
-                .incompleteCount(CountDetail.builder()
-                        .total(totalPeriod.getIncompleteCount())
-                        .difference(monthlyDifferences.getIncompleteCount())
-                        .build())
-                .completedCount(CountDetail.builder()
-                        .total(totalPeriod.getCompletedCount())
-                        .difference(monthlyDifferences.getCompletedCount())
-                        .build())
-                .overdueCount(CountDetail.builder()
-                        .total(totalPeriod.getOverdueCount())
-                        .difference(monthlyDifferences.getOverdueCount())
-                        .build())
-                .build();
-    }
+                return TotalCountResponse.builder()
+                                .totalCount(CountDetail.builder()
+                                                .total(totalPeriod.getTotalCount())
+                                                .difference(monthlyDifferences.getTotalCount())
+                                                .build())
+                                .assignedCount(CountDetail.builder()
+                                                .total(totalPeriod.getAssignedCount())
+                                                .difference(monthlyDifferences.getAssignedCount())
+                                                .build())
+                                .incompleteCount(CountDetail.builder()
+                                                .total(totalPeriod.getIncompleteCount())
+                                                .difference(monthlyDifferences.getIncompleteCount())
+                                                .build())
+                                .completedCount(CountDetail.builder()
+                                                .total(totalPeriod.getCompletedCount())
+                                                .difference(monthlyDifferences.getCompletedCount())
+                                                .build())
+                                .overdueCount(CountDetail.builder()
+                                                .total(totalPeriod.getOverdueCount())
+                                                .difference(monthlyDifferences.getOverdueCount())
+                                                .build())
+                                .todoCount(CountDetail.builder().total(totalPeriod.getTodoCount())
+                                                .difference(monthlyDifferences.getTodoCount())
+                                                .build())
+                                .inProgressCount(CountDetail.builder().total(totalPeriod.getInProgressCount())
+                                                .difference(monthlyDifferences.getInProgressCount())
+                                                .build())
+                                .inReviewCount(CountDetail.builder().total(totalPeriod.getInReviewCount())
+                                                .difference(monthlyDifferences.getInReviewCount())
+                                                .build())
+                                .backlogCount(CountDetail.builder().total(totalPeriod.getBacklogCount())
+                                                .difference(monthlyDifferences.getBacklogCount())
+                                                .build())
+                                .build();
+        }
 }

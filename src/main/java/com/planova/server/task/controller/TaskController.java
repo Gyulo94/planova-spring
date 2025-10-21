@@ -59,6 +59,13 @@ public class TaskController {
     return Api.OK(responses);
   }
 
+  @GetMapping("workspace/{workspaceId}/me")
+  public Api<List<TaskResponse>> findMyTasksByWorkspace(@PathVariable("workspaceId") UUID workspaceId,
+      @ModelAttribute TaskFilterRequest request, @CurrentUser JwtPayload user) {
+    List<TaskResponse> responses = taskService.findMyTasksByWorkspace(workspaceId, request, user.getId());
+    return Api.OK(responses);
+  }
+
   @GetMapping("{id}")
   public Api<TaskResponse> findTask(@PathVariable("id") UUID id, @CurrentUser JwtPayload user) {
     TaskResponse response = taskService.findTask(id, user.getId());

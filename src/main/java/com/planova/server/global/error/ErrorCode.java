@@ -35,6 +35,7 @@ public enum ErrorCode implements ErrorCodeInterface {
 
   WORKSPACE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 워크스페이스입니다."),
   WORKSPACE_UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "워크스페이스 접근 권한이 없습니다."),
+  WORKSPACE_HAS_TO_EXIST_AT_LEAST_ONE(HttpStatus.BAD_REQUEST.value(), "소유한 워크스페이스가 1개일 때는 삭제할 수 없습니다."),
 
   PROJECT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "존재하지 않는 프로젝트입니다."),
 

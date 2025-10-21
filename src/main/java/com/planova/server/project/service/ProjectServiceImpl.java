@@ -35,7 +35,8 @@ public class ProjectServiceImpl implements ProjectService {
   public List<ProjectResponse> findProjectsByWorkspaceId(UUID workspaceId, UUID userId) {
     workspaceMemberService.validateWorkspaceMember(workspaceId, userId);
     List<Project> projects = projectRepository.findAllByWorkspaceId(workspaceId);
-    List<ProjectResponse> response = projects.stream().map(project -> ProjectResponse.fromEntity(project, imageService))
+    List<ProjectResponse> response = projects.stream()
+        .map(project -> ProjectResponse.fromEntity(project, imageService))
         .toList();
     return response;
   }

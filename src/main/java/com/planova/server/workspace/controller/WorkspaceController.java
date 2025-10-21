@@ -64,9 +64,14 @@ public class WorkspaceController {
   @GetMapping("{id}/analytics")
   public Api<TotalCountResponse> findTaskCountsByWorkspaceId(@PathVariable("id") UUID id,
       @CurrentUser JwtPayload user) {
-    LOGGER.info("워크스페이스 분석 데이터 조회 컨트롤러 진입 id: {}, user: {}", id, user);
     TotalCountResponse response = taskService.findTaskCountsByWorkspaceId(id, user.getId());
-    LOGGER.info("워크스페이스 분석 데이터 조회 컨트롤러 종료 response: {}", response);
+    return Api.OK(response);
+  }
+
+  @GetMapping("{id}/my-analytics")
+  public Api<TotalCountResponse> findMyTaskCountsByWorkspaceId(@PathVariable("id") UUID id,
+      @CurrentUser JwtPayload user) {
+    TotalCountResponse response = taskService.findMyTaskCountsByWorkspaceId(id, user.getId());
     return Api.OK(response);
   }
 

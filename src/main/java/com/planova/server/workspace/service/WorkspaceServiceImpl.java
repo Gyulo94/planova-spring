@@ -127,6 +127,10 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   public void deleteWorkspace(UUID id, UUID userId) {
     Workspace workspace = findWorkspaceEntityById(id);
     validateWorkspaceOwner(workspace.getOwner().getId(), userId);
+    int ownerWorkspaceCount = workspaceRepository.countByOwnerId(userId);
+    if (ownerWorkspaceCount == 1) {
+      throw new ApiException(ErrorCode.WORKSPACE_HAS_TO_EXIST_AT_LEAST_ONE);
+    }
     imageService.deleteImages(workspace.getId(), constants.getProjectName(), EntityType.WORKSPACE);
     workspaceMemberService.deleteWorkspaceMembers(id);
     workspaceRepository.delete(workspace);

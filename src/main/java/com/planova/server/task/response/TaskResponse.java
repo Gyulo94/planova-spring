@@ -30,6 +30,7 @@ public class TaskResponse {
   private TaskPriority priority;
   private UserResponse assignee;
   private ProjectResponse project;
+  private LocalDateTime createdAt;
   private int position;
 
   public static TaskResponse fromEntity(Task task, ProjectResponse projectResponse) {
@@ -43,6 +44,7 @@ public class TaskResponse {
         .position(task.getPosition())
         .assignee(UserResponse.fromEntity(task.getAssignee()))
         .project(projectResponse)
+        .createdAt(task.getCreatedAt())
         .build();
   }
 }

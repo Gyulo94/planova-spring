@@ -60,11 +60,17 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
     addIfNotNull(predicates, parseDateTime(request.getStartDate()), v -> task.startDate.goe(v));
     addIfNotNull(predicates, parseDateTime(request.getDueDate()), v -> task.dueDate.goe(v));
     addIfNotNull(predicates, request.getSearch(), v -> task.name.containsIgnoreCase(v));
-    predicates.add(task.assignee.id.eq(userId));
+    if (userId != null) {
+      predicates.add(task.assignee.id.eq(userId));
+    }
 
-    return queryBuilder.selectFrom(task)
+    var query = queryBuilder.selectFrom(task)
         .where(predicates.toArray(new BooleanExpression[0]))
-        .fetch();
+        .orderBy(task.createdAt.desc());
+    if (request.getTake() > 0) {
+      query = query.limit(request.getTake());
+    }
+    return query.fetch();
   }
 
   private <T> void addIfNotNull(List<BooleanExpression> predicates, T value,
@@ -118,7 +124,7 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
   }
 
   @Override
-  public TaskCountResponse taskCountsMonthlyByWorkspaceId(UUID workspaceId, LocalDateTime start,
+  public TaskCountResponse myTaskCountsMonthlyByWorkspaceId(UUID workspaceId, LocalDateTime start,
       LocalDateTime end, UUID userId) {
     return queryBuilder
         .select(Projections.constructor(TaskCountResponse.class,
@@ -135,7 +141,7 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
   }
 
   @Override
-  public TaskCountResponse taskCountsTotalByWorkspaceId(UUID workspaceId, UUID userId) {
+  public TaskCountResponse myTaskCountsTotalByWorkspaceId(UUID workspaceId, UUID userId) {
     return queryBuilder
         .select(Projections.constructor(TaskCountResponse.class,
             createTotalCountExpression(),
@@ -146,6 +152,68 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
         .from(task)
         .where(task.project.workspace.id.eq(workspaceId).and(task.assignee.id.eq(userId)))
         .fetchOne();
+  }
+
+  @Override
+  public TaskCountResponse taskCountsMonthlyByWorkspaceId(UUID workspaceId, LocalDateTime start,
+      LocalDateTime end) {
+    return queryBuilder
+        .select(Projections.constructor(TaskCountResponse.class,
+            createTotalCountExpression(),
+            createAssignedCountExpression(),
+            createIncompleteCountExpression(),
+            createCompleteCountExpression(),
+            createTodoCountExpression(),
+            createInProgressCountExpression(),
+            createInReviewCountExpression(),
+            createBacklogCountExpression(),
+            createOverdueCountExpression()))
+        .from(task)
+        .where(task.project.workspace.id.eq(workspaceId)
+            .and(task.createdAt.between(start, end)))
+        .fetchOne();
+  }
+
+  @Override
+  public TaskCountResponse taskCountsTotalByWorkspaceId(UUID workspaceId) {
+    return queryBuilder
+        .select(Projections.constructor(TaskCountResponse.class,
+            createTotalCountExpression(),
+            createAssignedCountExpression(),
+            createIncompleteCountExpression(),
+            createCompleteCountExpression(),
+            createTodoCountExpression(),
+            createInProgressCountExpression(),
+            createInReviewCountExpression(),
+            createBacklogCountExpression(),
+            createOverdueCountExpression()))
+        .from(task)
+        .where(task.project.workspace.id.eq(workspaceId))
+        .fetchOne();
+  }
+
+  private NumberExpression<Long> createTodoCountExpression() {
+    return Expressions.numberTemplate(Long.class,
+        "coalesce(sum(case when {0} = {1} then 1 else 0 end), 0)",
+        task.status, TaskStatus.TODO);
+  }
+
+  private NumberExpression<Long> createInProgressCountExpression() {
+    return Expressions.numberTemplate(Long.class,
+        "coalesce(sum(case when {0} = {1} then 1 else 0 end), 0)",
+        task.status, TaskStatus.IN_PROGRESS);
+  }
+
+  private NumberExpression<Long> createInReviewCountExpression() {
+    return Expressions.numberTemplate(Long.class,
+        "coalesce(sum(case when {0} = {1} then 1 else 0 end), 0)",
+        task.status, TaskStatus.IN_REVIEW);
+  }
+
+  private NumberExpression<Long> createBacklogCountExpression() {
+    return Expressions.numberTemplate(Long.class,
+        "coalesce(sum(case when {0} = {1} then 1 else 0 end), 0)",
+        task.status, TaskStatus.BACKLOG);
   }
 
   private NumberExpression<Long> createTotalCountExpression() {

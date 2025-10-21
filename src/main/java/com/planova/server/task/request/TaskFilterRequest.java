@@ -26,4 +26,5 @@ public class TaskFilterRequest {
   private String search;
   private String startDate;
   private String dueDate;
+  private int take;
 }

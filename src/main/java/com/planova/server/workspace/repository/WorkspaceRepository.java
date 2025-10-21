@@ -10,4 +10,6 @@ import com.planova.server.workspace.entity.Workspace;
 @Repository
 public interface WorkspaceRepository extends JpaRepository<Workspace, UUID> {
 
+  int countByOwnerId(UUID userId);
+
 }
