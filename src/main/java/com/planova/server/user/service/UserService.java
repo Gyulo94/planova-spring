@@ -55,4 +55,6 @@ public interface UserService {
    *         refreshToken, long expiresIn)
    */
   void socialSignup(SocialLoginRequest request);
+
+  UserResponse findUserById(UUID id);
 }

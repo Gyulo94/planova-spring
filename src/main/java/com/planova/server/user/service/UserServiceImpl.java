@@ -149,4 +149,11 @@ public class UserServiceImpl implements UserService {
 
     userRepository.save(newUser);
   }
+
+  @Override
+  public UserResponse findUserById(UUID id) {
+    User user = findUserEntityById(id);
+    UserResponse response = UserResponse.fromEntity(user);
+    return response;
+  }
 }
