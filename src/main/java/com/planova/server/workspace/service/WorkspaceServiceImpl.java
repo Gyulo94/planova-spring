@@ -89,8 +89,11 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     User user = userService.getUserEntityById(userId);
     String inviteCode = GenerateInviteCodeUtils.generateInviteCode(8);
     Workspace newWorkspace = workspaceRepository.save(WorkspaceRequest.toEntity(request, inviteCode, user));
-    String newImage = imageService.createImages(newWorkspace.getId(), List.of(request.getImage()), EntityType.WORKSPACE)
-        .get(0);
+    String newImage = "";
+    if (request.getImage() != null && !request.getImage().isEmpty()) {
+      newImage = imageService.createImages(newWorkspace.getId(), List.of(request.getImage()), EntityType.WORKSPACE)
+          .get(0);
+    }
     workspaceMemberService.createWorkspaceMember(newWorkspace, user);
     WorkspaceResponse response = WorkspaceResponse.fromEntity(newWorkspace, newImage);
     return response;
