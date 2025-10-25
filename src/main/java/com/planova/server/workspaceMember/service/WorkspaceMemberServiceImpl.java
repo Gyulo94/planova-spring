@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.planova.server.global.error.ErrorCode;
 import com.planova.server.global.exception.ApiException;
+import com.planova.server.image.service.ImageService;
 import com.planova.server.user.entity.User;
 import com.planova.server.workspace.entity.Workspace;
 import com.planova.server.workspaceMember.entity.WorkspaceMember;
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
 
   private final WorkspaceMemberRepository workspaceMemberRepository;
+  private final ImageService imageService;
 
   /**
    * 워크스페이스 멤버 생성
@@ -111,7 +113,7 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
     validateWorkspaceMember(workspaceId, userId);
     List<WorkspaceMember> workspaceMembers = workspaceMemberRepository.findAllByWorkspaceId(workspaceId);
     List<WorkspaceMemberInfoResponse> memberInfos = workspaceMembers.stream()
-        .map(member -> WorkspaceMemberInfoResponse.fromEntity(member, member.getUser()))
+        .map(member -> WorkspaceMemberInfoResponse.fromEntity(member, member.getUser(), imageService))
         .toList();
     WorkspaceMemberResponse response = WorkspaceMemberResponse.fromEntity(workspaceId, memberInfos);
     return response;
@@ -130,7 +132,7 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
     WorkspaceMember workspaceMember = workspaceMemberRepository.findById(workspaceMemberId)
         .orElseThrow(() -> new ApiException(ErrorCode.MEMBER_NOT_FOUND));
     User user = workspaceMember.getUser();
-    WorkspaceMemberInfoResponse response = WorkspaceMemberInfoResponse.fromEntity(workspaceMember, user);
+    WorkspaceMemberInfoResponse response = WorkspaceMemberInfoResponse.fromEntity(workspaceMember, user, imageService);
     return response;
   }
 

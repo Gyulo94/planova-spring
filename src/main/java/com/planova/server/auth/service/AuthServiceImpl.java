@@ -17,6 +17,7 @@ import com.planova.server.auth.response.TokenResponse;
 import com.planova.server.global.error.ErrorCode;
 import com.planova.server.global.exception.ApiException;
 import com.planova.server.global.jwt.JwtProvider;
+import com.planova.server.image.service.ImageService;
 import com.planova.server.user.entity.User;
 import com.planova.server.user.response.UserResponse;
 import com.planova.server.user.service.UserService;
@@ -32,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
   private final UserService userService;
   private final PasswordEncoder passwordEncoder;
   private final JwtProvider jwtProvider;
+  private final ImageService imageService;
 
   /**
    * 로그인
@@ -59,7 +61,7 @@ public class AuthServiceImpl implements AuthService {
     }
     TokenResponse newTokens = generateTokens(user);
     LoginResponse response = LoginResponse.builder()
-        .user(UserResponse.fromEntity(user))
+        .user(UserResponse.fromEntity(user, imageService))
         .serverTokens(newTokens)
         .build();
     return response;
@@ -86,9 +88,11 @@ public class AuthServiceImpl implements AuthService {
     user = userService.findByEmail(email);
     TokenResponse newTokens = generateTokens(user);
     LoginResponse response = LoginResponse.builder()
-        .user(UserResponse.fromEntity(user))
+        .user(UserResponse.fromEntity(user, imageService))
         .serverTokens(newTokens)
         .build();
+
+    LOGGER.info("소셜 로그인 완료: {}", response);
     return response;
   };
 

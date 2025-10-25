@@ -192,4 +192,14 @@ public class ImageServiceImpl implements ImageService {
       throw new ApiException(ErrorCode.SAVE_IMAGE_FAILED);
     }
   }
+
+  @Override
+  public void createUserImage(UUID entityId, String image, EntityType entityType) {
+    Image imageEntity = Image.builder()
+        .entityId(entityId)
+        .entityType(entityType)
+        .url(image)
+        .build();
+    imageRepository.save(imageEntity);
+  }
 }

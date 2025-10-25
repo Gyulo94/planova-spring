@@ -2,6 +2,9 @@ package com.planova.server.workspaceMember.response;
 
 import java.time.LocalDateTime;
 
+import com.planova.server.image.entity.EntityType;
+import com.planova.server.image.entity.Image;
+import com.planova.server.image.service.ImageService;
 import com.planova.server.user.entity.User;
 import com.planova.server.user.response.UserResponse;
 import com.planova.server.workspaceMember.entity.WorkspaceMember;
@@ -23,12 +26,18 @@ public class WorkspaceMemberInfoResponse extends UserResponse {
   private WorkspaceMemberRole role;
   private LocalDateTime joinedAt;
 
-  public static WorkspaceMemberInfoResponse fromEntity(WorkspaceMember workspaceMember, User user) {
+  public static WorkspaceMemberInfoResponse fromEntity(WorkspaceMember workspaceMember, User user,
+      ImageService imageService) {
+    String imageUrl = imageService.findImagesByEntityId(user.getId(), EntityType.USER)
+        .stream()
+        .findFirst()
+        .map(Image::getUrl)
+        .orElse(null);
     return WorkspaceMemberInfoResponse.builder()
         .id(user.getId())
         .name(user.getName())
         .email(user.getEmail())
-        .image(user.getImage())
+        .image(imageUrl)
         .provider(user.getProvider())
         .createdAt(user.getCreatedAt())
         .role(workspaceMember.getRole())

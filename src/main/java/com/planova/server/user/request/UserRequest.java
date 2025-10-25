@@ -33,4 +33,5 @@ public class UserRequest {
   private String image;
 
   private Provider provider;
+
 }

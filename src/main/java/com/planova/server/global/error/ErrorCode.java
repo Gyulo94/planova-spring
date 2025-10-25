@@ -22,6 +22,7 @@ public enum ErrorCode implements ErrorCodeInterface {
   FAILED_TO_LOGIN(HttpStatus.UNAUTHORIZED.value(), "유저아이디 혹은 비밀번호가 맞지 않습니다."),
   FORBIDDEN_RESET_PASSWORD_SOCIAL_USER(HttpStatus.FORBIDDEN.value(), "소셜 로그인 유저는 비밀번호 재설정이 불가능합니다."),
   SAME_PASSWORD(HttpStatus.BAD_REQUEST.value(), "기존 비밀번호와 동일합니다."),
+  INVALID_CURRENT_PASSWORD(HttpStatus.UNAUTHORIZED.value(), "비밀번호가 올바르지 않습니다."),
 
   ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED.value(), "액세스 토큰이 만료되었습니다."),
   INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 토큰입니다."),

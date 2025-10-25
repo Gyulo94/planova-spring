@@ -1,5 +1,6 @@
 package com.planova.server.user.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -9,12 +10,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.planova.server.auth.request.SocialLoginRequest;
+import com.planova.server.global.constants.Constants;
 import com.planova.server.global.error.ErrorCode;
 import com.planova.server.global.exception.ApiException;
+import com.planova.server.image.entity.EntityType;
+import com.planova.server.image.service.ImageService;
 import com.planova.server.user.entity.User;
 import com.planova.server.user.repository.UserRepository;
 import com.planova.server.user.request.ResetPasswordRequest;
+import com.planova.server.user.request.UserPasswordRequest;
 import com.planova.server.user.request.UserRequest;
+import com.planova.server.user.request.UserUpdateRequest;
 import com.planova.server.user.response.UserResponse;
 
 import jakarta.transaction.Transactional;
@@ -28,6 +34,8 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final RedisTemplate<String, String> redisTemplate;
+  private final ImageService imageService;
+  private final Constants constants;
 
   /**
    * 회원가입
@@ -56,7 +64,8 @@ public class UserServiceImpl implements UserService {
         .build();
 
     userRepository.save(newUser);
-    UserResponse response = UserResponse.fromEntity(newUser);
+
+    UserResponse response = UserResponse.fromEntity(newUser, imageService);
     redisTemplate.delete(token);
 
     return response;
@@ -143,17 +152,67 @@ public class UserServiceImpl implements UserService {
     User newUser = User.builder()
         .name(request.getName())
         .email(request.getEmail())
-        .image(request.getImage())
         .provider(request.getProvider())
         .build();
-
     userRepository.save(newUser);
+    imageService.createUserImage(newUser.getId(), request.getImage(), EntityType.USER);
   }
 
   @Override
   public UserResponse findUserById(UUID id) {
     User user = findUserEntityById(id);
-    UserResponse response = UserResponse.fromEntity(user);
+    UserResponse response = UserResponse.fromEntity(user, imageService);
     return response;
+  }
+
+  @Override
+  public UserResponse updateUser(UUID id, UserUpdateRequest request) {
+    User user = findUserEntityById(id);
+    user.update(request.getName());
+
+    var existingImages = imageService.findImagesByEntityId(id, EntityType.USER);
+
+    String existingImage = (existingImages != null && !existingImages.isEmpty())
+        ? existingImages.get(0).getUrl()
+        : null;
+
+    if (request.getImage() != null && !request.getImage().isEmpty()) {
+      if (existingImage != null) {
+        imageService
+            .updateImages(id, List.of(request.getImage()), List.of(existingImage), EntityType.USER)
+            .get(0);
+      } else {
+        imageService.createImages(id, List.of(request.getImage()), EntityType.USER)
+            .get(0);
+      }
+    }
+    UserResponse response = UserResponse.fromEntity(user, imageService);
+    return response;
+  }
+
+  @Override
+  public UserResponse updateUserPassword(UUID id, UserPasswordRequest request) {
+    User user = findUserEntityById(id);
+
+    if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+      throw new ApiException(ErrorCode.INVALID_CURRENT_PASSWORD);
+    }
+
+    if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+      throw new ApiException(ErrorCode.SAME_PASSWORD);
+    }
+
+    String encodedPassword = passwordEncoder.encode(request.getNewPassword());
+    user.updatePassword(encodedPassword);
+
+    UserResponse response = UserResponse.fromEntity(user, imageService);
+    return response;
+  }
+
+  @Override
+  public void deleteUser(UUID id) {
+    User user = findUserEntityById(id);
+    imageService.deleteImages(id, constants.getProjectName(), EntityType.USER);
+    userRepository.delete(user);
   }
 }

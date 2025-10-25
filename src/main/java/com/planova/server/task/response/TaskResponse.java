@@ -3,6 +3,7 @@ package com.planova.server.task.response;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.planova.server.image.service.ImageService;
 import com.planova.server.project.response.ProjectResponse;
 import com.planova.server.task.entity.Task;
 import com.planova.server.task.entity.TaskPriority;
@@ -33,7 +34,7 @@ public class TaskResponse {
   private LocalDateTime createdAt;
   private int position;
 
-  public static TaskResponse fromEntity(Task task, ProjectResponse projectResponse) {
+  public static TaskResponse fromEntity(Task task, ProjectResponse projectResponse, ImageService imageService) {
     return TaskResponse.builder().id(task.getId())
         .name(task.getName())
         .description(task.getDescription())
@@ -42,7 +43,7 @@ public class TaskResponse {
         .status(task.getStatus())
         .priority(task.getPriority())
         .position(task.getPosition())
-        .assignee(UserResponse.fromEntity(task.getAssignee()))
+        .assignee(UserResponse.fromEntity(task.getAssignee(), imageService))
         .project(projectResponse)
         .createdAt(task.getCreatedAt())
         .build();

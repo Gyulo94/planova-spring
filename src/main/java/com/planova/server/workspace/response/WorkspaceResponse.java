@@ -50,7 +50,7 @@ public class WorkspaceResponse {
         .id(workspace.getId())
         .name(workspace.getName())
         .image(imageUrl)
-        .owner(UserResponse.fromEntity(workspace.getOwner()))
+        .owner(UserResponse.fromEntity(workspace.getOwner(), imageService))
         .inviteCode(workspace.getInviteCode())
         .createdAt(workspace.getCreatedAt())
         .projects(workspace.getProjects().stream()

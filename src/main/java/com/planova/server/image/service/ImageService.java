@@ -20,4 +20,6 @@ public interface ImageService {
 
   void deleteImages(UUID entityId, String serviceName, EntityType entityType);
 
+  void createUserImage(UUID entityId, String image, EntityType entityType);
+
 }

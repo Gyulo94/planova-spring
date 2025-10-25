@@ -41,8 +41,6 @@ public class User {
 
   private String password;
 
-  private String image;
-
   @Enumerated(EnumType.STRING)
   @ColumnDefault("'이메일'")
   private Provider provider;
@@ -53,5 +51,9 @@ public class User {
 
   public void updatePassword(String newPassword) {
     this.password = newPassword;
+  }
+
+  public void update(String name) {
+    this.name = name;
   }
 }

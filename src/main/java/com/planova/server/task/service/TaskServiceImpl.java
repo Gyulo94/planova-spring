@@ -53,7 +53,7 @@ public class TaskServiceImpl implements TaskService {
     int position = getNextPosition(project.getId(), request.getStatus());
     Task newTask = taskRepository.save(TaskRequest.toEntity(request, assignee, project, position));
     ProjectResponse projectResponse = ProjectResponse.fromEntity(project, imageService);
-    TaskResponse response = TaskResponse.fromEntity(newTask, projectResponse);
+    TaskResponse response = TaskResponse.fromEntity(newTask, projectResponse, imageService);
     return response;
   }
 
@@ -71,7 +71,7 @@ public class TaskServiceImpl implements TaskService {
     List<Task> tasks = taskRepository.findByProjectIdAndFilters(projectId, request);
     ProjectResponse projectResponse = ProjectResponse.fromEntity(project, imageService);
     List<TaskResponse> responses = tasks.stream()
-        .map(task -> TaskResponse.fromEntity(task, projectResponse))
+        .map(task -> TaskResponse.fromEntity(task, projectResponse, imageService))
         .toList();
     return responses;
   }
@@ -84,7 +84,7 @@ public class TaskServiceImpl implements TaskService {
     List<TaskResponse> responses = tasks.stream()
         .map(task -> {
           ProjectResponse projectResponse = ProjectResponse.fromEntity(task.getProject(), imageService);
-          return TaskResponse.fromEntity(task, projectResponse);
+          return TaskResponse.fromEntity(task, projectResponse, imageService);
         })
         .toList();
     return responses;
@@ -98,7 +98,7 @@ public class TaskServiceImpl implements TaskService {
     List<TaskResponse> responses = tasks.stream()
         .map(task -> {
           ProjectResponse projectResponse = ProjectResponse.fromEntity(task.getProject(), imageService);
-          return TaskResponse.fromEntity(task, projectResponse);
+          return TaskResponse.fromEntity(task, projectResponse, imageService);
         })
         .toList();
     return responses;
@@ -121,7 +121,7 @@ public class TaskServiceImpl implements TaskService {
     UUID workspaceId = task.getProject().getWorkspace().getId();
     workspaceMemberService.validateWorkspaceMember(workspaceId, userId);
     ProjectResponse projectResponse = ProjectResponse.fromEntity(task.getProject(), imageService);
-    TaskResponse response = TaskResponse.fromEntity(task, projectResponse);
+    TaskResponse response = TaskResponse.fromEntity(task, projectResponse, imageService);
     return response;
   }
 
@@ -142,11 +142,11 @@ public class TaskServiceImpl implements TaskService {
     if (!isAssignee) {
       workspaceMemberService.validateWorkspaceAdmin(workspaceId, userId);
       task.update(request, assignee);
-      TaskResponse response = TaskResponse.fromEntity(task, projectResponse);
+      TaskResponse response = TaskResponse.fromEntity(task, projectResponse, imageService);
       return response;
     } else {
       task.update(request, assignee);
-      TaskResponse response = TaskResponse.fromEntity(task, projectResponse);
+      TaskResponse response = TaskResponse.fromEntity(task, projectResponse, imageService);
       return response;
     }
   }

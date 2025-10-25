@@ -26,7 +26,10 @@ public enum ResponseMessage implements ResponseMessageInterface {
   CREATE_TASK_SUCCESS("작업이 성공적으로 생성되었습니다."),
   UPDATE_TASK_SUCCESS("작업이 성공적으로 수정되었습니다."),
   DELETE_TASK_SUCCESS("작업이 성공적으로 삭제되었습니다."),
-  ;
+
+  UPDATE_USER_SUCCESS("회원 정보가 성공적으로 수정되었습니다."),
+  UPDATE_USER_PASSWORD_SUCCESS("비밀번호가 성공적으로 변경되었습니다."),
+  DELETE_USER_SUCCESS("회원 탈퇴가 성공적으로 처리되었습니다.");
 
   private final String message;
 }

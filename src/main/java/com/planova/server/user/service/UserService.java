@@ -5,7 +5,9 @@ import java.util.UUID;
 import com.planova.server.auth.request.SocialLoginRequest;
 import com.planova.server.user.entity.User;
 import com.planova.server.user.request.ResetPasswordRequest;
+import com.planova.server.user.request.UserPasswordRequest;
 import com.planova.server.user.request.UserRequest;
+import com.planova.server.user.request.UserUpdateRequest;
 import com.planova.server.user.response.UserResponse;
 
 public interface UserService {
@@ -57,4 +59,10 @@ public interface UserService {
   void socialSignup(SocialLoginRequest request);
 
   UserResponse findUserById(UUID id);
+
+  UserResponse updateUser(UUID id, UserUpdateRequest request);
+
+  UserResponse updateUserPassword(UUID id, UserPasswordRequest request);
+
+  void deleteUser(UUID id);
 }

@@ -111,10 +111,25 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     Workspace workspace = findWorkspaceEntityById(id);
     validateWorkspaceOwner(workspace.getOwner().getId(), userId);
     workspace.update(request.getName());
-    String existingImage = imageService.findImagesByEntityId(workspace.getId(), EntityType.WORKSPACE).get(0).getUrl();
-    String newImage = imageService
-        .updateImages(workspace.getId(), List.of(request.getImage()), List.of(existingImage), EntityType.WORKSPACE)
-        .get(0);
+    String newImage = "";
+
+    var existingImages = imageService.findImagesByEntityId(workspace.getId(), EntityType.WORKSPACE);
+    String existingImage = (existingImages != null && !existingImages.isEmpty())
+        ? existingImages.get(0).getUrl()
+        : null;
+
+    if (request.getImage() != null && !request.getImage().isEmpty()) {
+      if (existingImage != null) {
+        newImage = imageService
+            .updateImages(workspace.getId(), List.of(request.getImage()), List.of(existingImage), EntityType.WORKSPACE)
+            .get(0);
+      } else {
+        newImage = imageService.createImages(workspace.getId(), List.of(request.getImage()), EntityType.WORKSPACE)
+            .get(0);
+      }
+    } else {
+      newImage = existingImage != null ? existingImage : "";
+    }
     WorkspaceResponse response = WorkspaceResponse.fromEntity(workspace, newImage);
     return response;
   }
