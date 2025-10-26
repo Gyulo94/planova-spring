@@ -75,3 +75,7 @@ bootRun {
     systemProperties.put("project.root", project.rootDir.getAbsolutePath())
 		sourceResources sourceSets.main
 }
+
+springBoot {
+    mainClass = 'com.planova.server.ServerApplication'
+}

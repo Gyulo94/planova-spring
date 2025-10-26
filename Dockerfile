@@ -1,4 +1,3 @@
-# 1단계: 애플리케이션 빌드 (멀티 스테이지 빌드 사용)
 FROM eclipse-temurin:17-jdk-jammy AS build
 
 WORKDIR /app
