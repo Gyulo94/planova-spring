@@ -29,9 +29,14 @@ jobs:
         run: |
           IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/planova-server
           IMAGE_TAG_SHA=${{ github.sha }}
-          docker compose build --no-cache
-          docker tag planova-spring-planova-server:latest $IMAGE_NAME:$IMAGE_TAG_SHA
-          docker tag planova-spring-planova-server:latest $IMAGE_NAME:latest
+          COMPOSE_PROJECT_NAME=$(basename ${{ github.workspace }})
+          SERVICE_NAME="planova-server"
+
+          docker compose build --no-cache $SERVICE_NAME
+          LOCAL_IMAGE_TAG="${COMPOSE_PROJECT_NAME}_${SERVICE_NAME}:latest"
+
+          docker tag "$LOCAL_IMAGE_TAG" "$IMAGE_NAME:$IMAGE_TAG_SHA"
+          docker tag "$LOCAL_IMAGE_TAG" "$IMAGE_NAME:latest"
 
       - name: Push Docker image to Docker Hub
         run: |
