@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,31 +19,30 @@ jobs:
           java-version: "17"
           distribution: "temurin"
 
+      - name: gradlew mod modify
+        run: chmod +x gradlew
+
+      - name: Gradle Caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+      - name: Spring Boot Build
+        run: ./gradlew clean build --exclude-task test
+
+      - name: docker image build
+        run: docker build -t planova-server
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Docker image with Docker Compose
-        run: |
-          IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/planova-server
-          IMAGE_TAG_SHA=${{ github.sha }}
-          COMPOSE_PROJECT_NAME=$(basename ${{ github.workspace }})
-          SERVICE_NAME="planova-server"
-
-          docker compose build --no-cache $SERVICE_NAME
-          LOCAL_IMAGE_TAG="${COMPOSE_PROJECT_NAME}_${SERVICE_NAME}:latest"
-
-          docker tag "$LOCAL_IMAGE_TAG" "$IMAGE_NAME:$IMAGE_TAG_SHA"
-          docker tag "$LOCAL_IMAGE_TAG" "$IMAGE_NAME:latest"
-
-      - name: Push Docker image to Docker Hub
-        run: |
-          IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/planova-server
-          IMAGE_TAG_SHA=${{ github.sha }}
-          docker push $IMAGE_NAME:$IMAGE_TAG_SHA
-          docker push $IMAGE_NAME:latest
+      - name: docker Hub push
+        run: docker push planova-server
 
       - name: Deploy to Remote Server
         uses: appleboy/ssh-action@master
@@ -54,14 +53,6 @@ jobs:
           port: ${{ secrets.REMOTE_PORT }}
           script: |
             cd ${{ secrets.REMOTE_PROJECT_PATH }}
-            echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" > .env
-            echo "IMAGE_TAG=latest" >> .env
-
-            echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
-            echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env
-            echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
-            echo "SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}" >> .env
-
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             echo "Pulling latest Docker images..."
             docker compose pull planova-server
