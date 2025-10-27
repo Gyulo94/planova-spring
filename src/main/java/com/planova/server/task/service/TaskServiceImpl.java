@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,7 @@ import com.planova.server.project.response.ProjectResponse;
 import com.planova.server.project.service.ProjectService;
 import com.planova.server.task.entity.Task;
 import com.planova.server.task.entity.TaskStatus;
+import com.planova.server.task.repository.TaskQueryRepositoryImpl;
 import com.planova.server.task.repository.TaskRepository;
 import com.planova.server.task.request.TaskBulkRequest;
 import com.planova.server.task.request.TaskFilterRequest;
@@ -44,6 +47,7 @@ public class TaskServiceImpl implements TaskService {
   private final ImageService imageService;
   private final WorkspaceMemberService workspaceMemberService;
   private final WorkspaceService workspaceService;
+  private final Logger LOGGER = LoggerFactory.getLogger(TaskQueryRepositoryImpl.class);
 
   @Transactional
   @Override
@@ -250,7 +254,6 @@ public class TaskServiceImpl implements TaskService {
     TaskCountResponse totalPeriodCounts = taskRepository.taskCountsTotalByWorkspaceId(workspaceId);
 
     TotalCountResponse response = TotalCountResponse.from(thisMonthCounts, lastMonthCounts, totalPeriodCounts);
-
     return response;
   }
 

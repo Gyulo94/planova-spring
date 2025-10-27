@@ -98,11 +98,11 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
   public TaskCountResponse taskCountsMonthlyByProjectId(UUID projectId, LocalDateTime start, LocalDateTime end) {
     return queryBuilder
         .select(Projections.constructor(TaskCountResponse.class,
-            createTotalCountExpression(),
-            createAssignedCountExpression(),
-            createIncompleteCountExpression(),
-            createCompleteCountExpression(),
-            createOverdueCountExpression()))
+            createTotalCountExpression().as("totalCount"),
+            createAssignedCountExpression().as("assignedCount"),
+            createIncompleteCountExpression().as("incompleteCount"),
+            createCompleteCountExpression().as("completedCount"),
+            createOverdueCountExpression().as("overdueCount")))
         .from(task)
         .where(task.project.id.eq(projectId)
             .and(task.createdAt.between(start, end)))
@@ -113,11 +113,11 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
   public TaskCountResponse taskCountsTotalByProjectId(UUID projectId) {
     return queryBuilder
         .select(Projections.constructor(TaskCountResponse.class,
-            createTotalCountExpression(),
-            createAssignedCountExpression(),
-            createIncompleteCountExpression(),
-            createCompleteCountExpression(),
-            createOverdueCountExpression()))
+            createTotalCountExpression().as("totalCount"),
+            createAssignedCountExpression().as("assignedCount"),
+            createIncompleteCountExpression().as("incompleteCount"),
+            createCompleteCountExpression().as("completedCount"),
+            createOverdueCountExpression().as("overdueCount")))
         .from(task)
         .where(task.project.id.eq(projectId))
         .fetchOne();
@@ -128,11 +128,11 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
       LocalDateTime end, UUID userId) {
     return queryBuilder
         .select(Projections.constructor(TaskCountResponse.class,
-            createTotalCountExpression(),
-            createAssignedCountExpression(),
-            createIncompleteCountExpression(),
-            createCompleteCountExpression(),
-            createOverdueCountExpression()))
+            createTotalCountExpression().as("totalCount"),
+            createAssignedCountExpression().as("assignedCount"),
+            createIncompleteCountExpression().as("incompleteCount"),
+            createCompleteCountExpression().as("completedCount"),
+            createOverdueCountExpression().as("overdueCount")))
         .from(task)
         .where(task.project.workspace.id.eq(workspaceId)
             .and(task.createdAt.between(start, end))
@@ -144,11 +144,11 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
   public TaskCountResponse myTaskCountsTotalByWorkspaceId(UUID workspaceId, UUID userId) {
     return queryBuilder
         .select(Projections.constructor(TaskCountResponse.class,
-            createTotalCountExpression(),
-            createAssignedCountExpression(),
-            createIncompleteCountExpression(),
-            createCompleteCountExpression(),
-            createOverdueCountExpression()))
+            createTotalCountExpression().as("totalCount"),
+            createAssignedCountExpression().as("assignedCount"),
+            createIncompleteCountExpression().as("incompleteCount"),
+            createCompleteCountExpression().as("completedCount"),
+            createOverdueCountExpression().as("overdueCount")))
         .from(task)
         .where(task.project.workspace.id.eq(workspaceId).and(task.assignee.id.eq(userId)))
         .fetchOne();
@@ -159,15 +159,15 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
       LocalDateTime end) {
     return queryBuilder
         .select(Projections.constructor(TaskCountResponse.class,
-            createTotalCountExpression(),
-            createAssignedCountExpression(),
-            createIncompleteCountExpression(),
-            createCompleteCountExpression(),
-            createTodoCountExpression(),
-            createInProgressCountExpression(),
-            createInReviewCountExpression(),
-            createBacklogCountExpression(),
-            createOverdueCountExpression()))
+            createTotalCountExpression().as("totalCount"),
+            createAssignedCountExpression().as("assignedCount"),
+            createIncompleteCountExpression().as("incompleteCount"),
+            createCompleteCountExpression().as("completedCount"),
+            createInProgressCountExpression().as("inProgressCount"),
+            createTodoCountExpression().as("todoCount"),
+            createOverdueCountExpression().as("overdueCount"),
+            createInReviewCountExpression().as("inReviewCount"),
+            createBacklogCountExpression().as("backlogCount")))
         .from(task)
         .where(task.project.workspace.id.eq(workspaceId)
             .and(task.createdAt.between(start, end)))
@@ -177,16 +177,16 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
   @Override
   public TaskCountResponse taskCountsTotalByWorkspaceId(UUID workspaceId) {
     return queryBuilder
-        .select(Projections.constructor(TaskCountResponse.class,
-            createTotalCountExpression(),
-            createAssignedCountExpression(),
-            createIncompleteCountExpression(),
-            createCompleteCountExpression(),
-            createTodoCountExpression(),
-            createInProgressCountExpression(),
-            createInReviewCountExpression(),
-            createBacklogCountExpression(),
-            createOverdueCountExpression()))
+        .select(Projections.fields(TaskCountResponse.class,
+            createTotalCountExpression().as("totalCount"),
+            createAssignedCountExpression().as("assignedCount"),
+            createIncompleteCountExpression().as("incompleteCount"),
+            createCompleteCountExpression().as("completedCount"),
+            createInProgressCountExpression().as("inProgressCount"),
+            createTodoCountExpression().as("todoCount"),
+            createOverdueCountExpression().as("overdueCount"),
+            createInReviewCountExpression().as("inReviewCount"),
+            createBacklogCountExpression().as("backlogCount")))
         .from(task)
         .where(task.project.workspace.id.eq(workspaceId))
         .fetchOne();
