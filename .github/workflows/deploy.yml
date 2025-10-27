@@ -22,13 +22,6 @@ jobs:
       - name: gradlew mod modify
         run: chmod +x gradlew
 
-      - name: Gradle Caching
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
       - name: Spring Boot Build
         run: ./gradlew clean build --exclude-task test
 
