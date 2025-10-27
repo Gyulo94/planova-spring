@@ -45,7 +45,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: docker Hub push
-        run: docker push gyulo94/planova-server
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/planova-server
 
       - name: Deploy to Remote Server
         uses: appleboy/ssh-action@master
@@ -57,11 +57,9 @@ jobs:
           script: |
             cd ${{ secrets.REMOTE_PROJECT_PATH }}
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-            echo "Pulling latest Docker images..."
-            docker compose pull planova-server
-            echo "Bringing up services..."
-            docker compose up -d --remove-orphans
-            echo "Deployment complete."
+            docker rm -f $(docker ps -qa)
+            docker compose pull ${{ secrets.DOCKER_USERNAME }}/planova-server
+            docker compose up -d
 
       - name: Send success message
         if: success()
