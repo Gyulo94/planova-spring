@@ -28,9 +28,19 @@ jobs:
           set +a
 
           echo "Environment variables loaded:"
-          env | grep REDIS_PORT
-          env | grep DATABASE_USERNAME
-          env | grep MAIL_USERNAME
+          env | grep REDIS_PORT || true
+          env | grep DATABASE_USERNAME || true
+          env | grep MAIL_USERNAME || true
+        shell: /usr/bin/bash -e {0}
+
+      - name: Create Application yml and Substitute Variables
+        run: |
+          mkdir -p ./src/main/resources
+          echo "${{secrets.APPLICATION_YML}}" | envsubst > ./src/main/resources/application.yml
+        shell: /usr/bin/bash -e {0}
+
+      - name: Debug Application yml Content
+        run: cat ./src/main/resources/application.yml
         shell: /usr/bin/bash -e {0}
 
       - name: gradlew mod modify
@@ -71,9 +81,15 @@ jobs:
           script: |
             cd ${{ secrets.REMOTE_PROJECT_PATH }}
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-            docker compose down --rmi all
-            echo "${{secrets.ENV_FILE}}" | touch ./.env > /dev/null
-            docker pull ${{ secrets.DOCKER_USERNAME }}/planova-server
+
+            echo "${{secrets.DOCKER_COMPOSE_YML}}" | sudo tee ./docker-compose.yml > /dev/null
+
+            printf "%s" "${{secrets.ENV_FILE}}" | sudo tee ./.env > /dev/null
+
+            docker compose down --rmi all || true
+
+            docker pull ${{ secrets.DOCKER_USERNAME }}/planova-server:latest
+
             docker compose up -d --remove-orphans
 
       - name: Send success message
