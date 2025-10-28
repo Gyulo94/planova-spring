@@ -22,12 +22,17 @@ jobs:
       - name: Create .env file (for runner)
         run: |
           echo "${{secrets.ENV_FILE}}" > ./.env
-          cat ./.env
+          set -a
+          source ./.env
+          set +a
 
       - name: Create Application yml
         run: |
           mkdir -p ./src/main/resources
           echo "${{secrets.APPLICATION_YML}}" > ./src/main/resources/application.yml
+
+      - name: Debug Application yml Content
+        run: cat ./src/main/resources/application.yml
 
       - name: gradlew mod modify
         run: chmod +x gradlew
