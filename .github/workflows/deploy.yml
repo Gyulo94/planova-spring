@@ -19,29 +19,10 @@ jobs:
           java-version: "17"
           distribution: "temurin"
 
-      - name: Create & Load .env file (for runner)
-        run: |
-          printf "%s" "${{secrets.ENV_FILE}}" > ./.env 
-
-          set -a
-          source ./.env
-          set +a
-
-          echo "Environment variables loaded:"
-          env | grep REDIS_PORT || true
-          env | grep DATABASE_USERNAME || true
-          env | grep MAIL_USERNAME || true
-        shell: /usr/bin/bash -e {0}
-
-      - name: Create Application yml and Substitute Variables
+      - name: Create Application yml
         run: |
           mkdir -p ./src/main/resources
-          echo "${{secrets.APPLICATION_YML}}" | envsubst > ./src/main/resources/application.yml
-        shell: /usr/bin/bash -e {0}
-
-      - name: Debug Application yml Content
-        run: cat ./src/main/resources/application.yml
-        shell: /usr/bin/bash -e {0}
+          echo "${{secrets.APPLICATION_YML}}" | base64 --decode > ./src/main/resources/application.yml
 
       - name: gradlew mod modify
         run: chmod +x gradlew
@@ -81,15 +62,9 @@ jobs:
           script: |
             cd ${{ secrets.REMOTE_PROJECT_PATH }}
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-
-            echo "${{secrets.DOCKER_COMPOSE_YML}}" | sudo tee ./docker-compose.yml > /dev/null
-
-            printf "%s" "${{secrets.ENV_FILE}}" | sudo tee ./.env > /dev/null
-
-            docker compose down --rmi all || true
-
-            docker pull ${{ secrets.DOCKER_USERNAME }}/planova-server:latest
-
+            docker compose down --rmi all
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/planova-server
+            docker pull ${{ secrets.DOCKER_USERNAME }}/planova-server
             docker compose up -d --remove-orphans
 
       - name: Send success message
