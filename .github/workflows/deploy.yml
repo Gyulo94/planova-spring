@@ -29,7 +29,7 @@ jobs:
       - name: Create Application yml
         run: |
           mkdir -p ./src/main/resources
-          echo "${{secrets.APPLICATION_YML}}" > ./src/main/resources/application.yml
+          echo "${{secrets.APPLICATION_YML}}" | envsubst > ./src/main/resources/application.yml
 
       - name: Debug Application yml Content
         run: cat ./src/main/resources/application.yml
