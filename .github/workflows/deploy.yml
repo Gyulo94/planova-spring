@@ -19,6 +19,11 @@ jobs:
           java-version: "17"
           distribution: "temurin"
 
+      - name: Create .env file (for runner)
+        run: |
+          echo "${{secrets.ENV_FILE}}" > ./.env
+          cat ./.env
+
       - name: Create Application yml
         run: |
           mkdir -p ./src/main/resources
@@ -63,7 +68,6 @@ jobs:
             cd ${{ secrets.REMOTE_PROJECT_PATH }}
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             docker compose down --rmi all
-            docker rmi ${{ secrets.DOCKER_USERNAME }}/planova-server
             echo "${{secrets.ENV_FILE}}" | touch ./.env > /dev/null
             docker pull ${{ secrets.DOCKER_USERNAME }}/planova-server
             docker compose up -d --remove-orphans
