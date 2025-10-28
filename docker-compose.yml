@@ -2,12 +2,13 @@ version: "3.8"
 
 services:
   planova-server:
-    image: ${DOCKER_USERNAME}/planova-server:${IMAGE_TAG}
+    image: ${DOCKER_USERNAME}/planova-server
     restart: always
     env_file:
       - ./.env
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: ${PORT}
       SPRING_DATASOURCE_URL: jdbc:postgresql://planova-db:5432/${DATABASE_NAME}
       SPRING_DATASOURCE_USERNAME: ${DATABASE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD}
@@ -61,7 +62,7 @@ services:
       - nginx-proxy_gyubuntu_net
 
   planova-redis:
-    image: redis:latest
+    image: redis
     restart: always
     command: redis-server --appendonly yes
     volumes:

@@ -64,7 +64,8 @@ jobs:
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             mkdir -p ./src/main/resources
             echo "${{secrets.APPLICATION_YML}}" > ./src/main/resources/application.yml
-            docker compose down --rmi all
+            echo "${{secrets.DOCKER_COMPOSE_YML}}" > ./docker-compose.yml
+            docker compose down
             docker rmi ${{ secrets.DOCKER_USERNAME }}/planova-server
             docker pull ${{ secrets.DOCKER_USERNAME }}/planova-server
             docker compose up -d --remove-orphans
