@@ -63,6 +63,8 @@ jobs:
           script: |
             cd ${{ secrets.REMOTE_PROJECT_PATH }}
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            mkdir -p ./src/main/resources
+            echo "${{secrets.APPLICATION_YML}}" > ./src/main/resources/application.yml
             docker compose down --rmi all
             docker rmi ${{ secrets.DOCKER_USERNAME }}/planova-server
             docker pull ${{ secrets.DOCKER_USERNAME }}/planova-server
