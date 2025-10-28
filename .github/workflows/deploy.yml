@@ -19,20 +19,19 @@ jobs:
           java-version: "17"
           distribution: "temurin"
 
-      - name: Create .env file (for runner)
+      - name: Create & Load .env file (for runner)
         run: |
-          echo "${{secrets.ENV_FILE}}" > ./.env
+          printf "%s" "${{secrets.ENV_FILE}}" > ./.env 
+
           set -a
           source ./.env
           set +a
 
-      - name: Create Application yml
-        run: |
-          mkdir -p ./src/main/resources
-          echo "${{secrets.APPLICATION_YML}}" | envsubst > ./src/main/resources/application.yml
-
-      - name: Debug Application yml Content
-        run: cat ./src/main/resources/application.yml
+          echo "Environment variables loaded:"
+          env | grep REDIS_PORT
+          env | grep DATABASE_USERNAME
+          env | grep MAIL_USERNAME
+        shell: /usr/bin/bash -e {0}
 
       - name: gradlew mod modify
         run: chmod +x gradlew
