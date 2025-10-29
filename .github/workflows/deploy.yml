@@ -62,6 +62,7 @@ jobs:
           script: |
             cd ${{ secrets.REMOTE_PROJECT_PATH }}
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            echo "${{secrets.ENV_FILE}}" > ./.env
             mkdir -p ./src/main/resources
             echo "${{secrets.APPLICATION_YML}}" > ./src/main/resources/application.yml
             echo "${{secrets.DOCKER_COMPOSE_YML}}" > ./docker-compose.yml
