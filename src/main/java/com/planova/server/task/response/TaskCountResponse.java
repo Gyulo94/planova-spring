@@ -1,5 +1,6 @@
 package com.planova.server.task.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,15 +12,34 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(title = "TASK_RES_02 : 작업 수 응답 DTO")
 public class TaskCountResponse {
+
+  @Schema(description = "총 작업 수", example = "42")
   private Long totalCount;
+
+  @Schema(description = "할당된 작업 수", example = "10")
   private Long assignedCount;
+
+  @Schema(description = "미완료 작업 수", example = "15")
   private Long incompleteCount;
+
+  @Schema(description = "완료된 작업 수", example = "20")
   private Long completedCount;
+
+  @Schema(description = "연체된 작업 수", example = "5")
   private Long inProgressCount;
+
+  @Schema(description = "할 일 작업 수", example = "7")
   private Long todoCount;
+
+  @Schema(description = "연체된 작업 수", example = "3")
   private Long overdueCount;
+
+  @Schema(description = "검토 중인 작업 수", example = "4")
   private Long inReviewCount;
+
+  @Schema(description = "백로그 작업 수", example = "6")
   private Long backlogCount;
 
   public TaskCountResponse(Long totalCount, Long assignedCount, Long incompleteCount, Long completedCount,

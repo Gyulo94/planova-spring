@@ -25,12 +25,15 @@ import com.planova.server.task.request.TaskRequest;
 import com.planova.server.task.response.TaskResponse;
 import com.planova.server.task.service.TaskService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("task")
 @RequiredArgsConstructor
+@Tag(name = "작업", description = "작업 관련 API")
 public class TaskController {
 
   private final TaskService taskService;
@@ -38,12 +41,14 @@ public class TaskController {
   Logger LOGGER = LoggerFactory.getLogger(TaskController.class);
 
   @PostMapping("create")
+  @Operation(summary = "작업 생성", description = "새로운 작업을 생성합니다.")
   public Api<TaskResponse> createTask(@Valid @RequestBody TaskRequest request, @CurrentUser JwtPayload user) {
     TaskResponse response = taskService.createTask(request, user.getId());
     return Api.OK(response, ResponseMessage.CREATE_TASK_SUCCESS);
   }
 
   @GetMapping("project/{projectId}/all")
+  @Operation(summary = "프로젝트 내 모든 작업 조회", description = "특정 프로젝트에 속한 모든 작업을 조회합니다. 필터링 옵션을 사용할 수 있습니다.")
   public Api<List<TaskResponse>> findTasks(@PathVariable("projectId") UUID projectId,
       @ModelAttribute TaskFilterRequest request) {
     // LOGGER.info("request: {}", request);
@@ -53,6 +58,7 @@ public class TaskController {
   }
 
   @GetMapping("workspace/{workspaceId}/all")
+  @Operation(summary = "워크스페이스 내 모든 작업 조회", description = "특정 워크스페이스에 속한 모든 작업을 조회합니다. 필터링 옵션을 사용할 수 있습니다.")
   public Api<List<TaskResponse>> findTasksByWorkspace(@PathVariable("workspaceId") UUID workspaceId,
       @ModelAttribute TaskFilterRequest request, @CurrentUser JwtPayload user) {
     List<TaskResponse> responses = taskService.findTasksByWorkspace(workspaceId, request, user.getId());
@@ -60,6 +66,7 @@ public class TaskController {
   }
 
   @GetMapping("workspace/{workspaceId}/me")
+  @Operation(summary = "내 작업 조회", description = "특정 워크스페이스에 속한 내 작업을 조회합니다.")
   public Api<List<TaskResponse>> findMyTasksByWorkspace(@PathVariable("workspaceId") UUID workspaceId,
       @ModelAttribute TaskFilterRequest request, @CurrentUser JwtPayload user) {
     List<TaskResponse> responses = taskService.findMyTasksByWorkspace(workspaceId, request, user.getId());
@@ -67,12 +74,14 @@ public class TaskController {
   }
 
   @GetMapping("{id}")
+  @Operation(summary = "작업 조회", description = "특정 작업을 조회합니다.")
   public Api<TaskResponse> findTask(@PathVariable("id") UUID id, @CurrentUser JwtPayload user) {
     TaskResponse response = taskService.findTask(id, user.getId());
     return Api.OK(response);
   }
 
   @PutMapping("{id}/update")
+  @Operation(summary = "작업 수정", description = "특정 작업을 수정합니다.")
   public Api<TaskResponse> updateTask(@PathVariable("id") UUID id,
       @Valid @RequestBody TaskRequest request, @CurrentUser JwtPayload user) {
     TaskResponse response = taskService.updateTask(id, request, user.getId());
@@ -80,6 +89,7 @@ public class TaskController {
   }
 
   @PutMapping("bulk-update")
+  @Operation(summary = "작업 일괄 수정", description = "여러 작업을 한 번에 수정합니다.")
   public Api<Void> bulkUpdateTasks(@Valid @RequestBody List<TaskBulkRequest> requests,
       @CurrentUser JwtPayload user) {
     taskService.bulkUpdateTasks(requests, user.getId());
@@ -87,6 +97,7 @@ public class TaskController {
   }
 
   @DeleteMapping("{id}/delete")
+  @Operation(summary = "작업 삭제", description = "특정 작업을 삭제합니다.")
   public Api<Void> deleteTask(@PathVariable("id") UUID id,
       @CurrentUser JwtPayload user) {
     taskService.deleteTask(id, user.getId());

@@ -22,18 +22,22 @@ import com.planova.server.project.service.ProjectService;
 import com.planova.server.task.response.TotalCountResponse;
 import com.planova.server.task.service.TaskService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("project")
 @RequiredArgsConstructor
+@Tag(name = "프로젝트", description = "프로젝트 관련 API")
 public class ProjectController {
 
   private final ProjectService projectService;
   private final TaskService taskService;
 
   @GetMapping("{workspaceId}/all")
+  @Operation(summary = "워크스페이스 내 모든 프로젝트 조회", description = "특정 워크스페이스에 속한 모든 프로젝트를 조회합니다.")
   public Api<List<ProjectResponse>> findProjectsByWorkspaceId(@PathVariable("workspaceId") UUID workspaceId,
       @CurrentUser JwtPayload user) {
     List<ProjectResponse> response = projectService.findProjectsByWorkspaceId(workspaceId, user.getId());
@@ -41,6 +45,7 @@ public class ProjectController {
   }
 
   @GetMapping("{id}")
+  @Operation(summary = "프로젝트 조회", description = "특정 ID를 가진 프로젝트의 정보를 조회합니다.")
   public Api<ProjectResponse> findProjectById(@PathVariable("id") UUID id,
       @CurrentUser JwtPayload user) {
     ProjectResponse response = projectService.findProjectById(id, user.getId());
@@ -48,6 +53,7 @@ public class ProjectController {
   }
 
   @GetMapping("{id}/analytics")
+  @Operation(summary = "프로젝트 분석 정보 조회", description = "특정 ID를 가진 프로젝트의 분석 정보를 조회합니다.")
   public Api<TotalCountResponse> findTaskCountsByProjectId(@PathVariable("id") UUID id,
       @CurrentUser JwtPayload user) {
     TotalCountResponse response = taskService.findTaskCountsByProjectId(id, user.getId());
@@ -55,6 +61,7 @@ public class ProjectController {
   }
 
   @PostMapping("create")
+  @Operation(summary = "프로젝트 생성", description = "새로운 프로젝트를 생성합니다.")
   public Api<ProjectResponse> createProject(@Valid @RequestBody ProjectRequest request,
       @CurrentUser JwtPayload user) {
     ProjectResponse respnose = projectService.createProject(request, user.getId());
@@ -62,6 +69,7 @@ public class ProjectController {
   }
 
   @PutMapping("{id}/update")
+  @Operation(summary = "프로젝트 수정", description = "특정 ID를 가진 프로젝트의 정보를 수정합니다.")
   public Api<ProjectResponse> updateProject(@PathVariable("id") UUID id,
       @Valid @RequestBody ProjectRequest request,
       @CurrentUser JwtPayload user) {
@@ -70,6 +78,7 @@ public class ProjectController {
   }
 
   @DeleteMapping("{id}/delete")
+  @Operation(summary = "프로젝트 삭제", description = "특정 ID를 가진 프로젝트를 삭제합니다.")
   public Api<String> deleteProject(@PathVariable("id") UUID id, @CurrentUser JwtPayload user) {
     projectService.deleteProject(id, user.getId());
     return Api.OK(ResponseMessage.DELETE_PROJECT_SUCCESS);

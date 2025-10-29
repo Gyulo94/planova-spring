@@ -20,74 +20,52 @@ import com.planova.server.workspaceMember.response.WorkspaceMemberInfoResponse;
 import com.planova.server.workspaceMember.response.WorkspaceMemberResponse;
 import com.planova.server.workspaceMember.service.WorkspaceMemberService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("workspace-member")
 @RequiredArgsConstructor
+@Tag(name = "워크스페이스 멤버", description = "워크스페이스 멤버 관련 API")
 public class WorkspaceMemberController {
   private final WorkspaceMemberService workspaceMemberService;
 
-  /**
-   * 워크스페이스 멤버 조회
-   * 
-   * @param UUID workspaceId, UUID userId
-   * @return WorkspaceMemberResponse
-   */
   @GetMapping("{workspaceId}/members/all")
+  @Operation(summary = "워크스페이스 멤버 조회", description = "특정 워크스페이스에 속한 모든 멤버의 정보를 조회합니다.")
   public Api<WorkspaceMemberResponse> findWorkspaceMembers(@PathVariable("workspaceId") UUID workspaceId,
       @CurrentUser JwtPayload user) {
     WorkspaceMemberResponse response = workspaceMemberService.findWorkspaceMembers(workspaceId, user.getId());
     return Api.OK(response);
   }
 
-  /**
-   * 워크스페이스내 나의 정보 조회
-   * 
-   * @param UUID workspaceId, UUID userId
-   * @return WorkspaceMemberInfoResponse
-   */
   @GetMapping("{workspaceId}/members/me")
+  @Operation(summary = "워크스페이스 내 나의 멤버 정보 조회", description = "특정 워크스페이스 내에서 나의 멤버 정보를 조회합니다.")
   public Api<WorkspaceMemberInfoResponse> findMyWorkspaceMemberInfo(@PathVariable("workspaceId") UUID workspaceId,
       @CurrentUser JwtPayload user) {
     WorkspaceMemberInfoResponse response = workspaceMemberService.findMyWorkspaceMemberInfo(workspaceId, user.getId());
     return Api.OK(response);
   }
 
-  /**
-   * 워크스페이스 참가
-   * 
-   * @param UUID workspaceId, WorkspaceMemberRequest request, UUID userId
-   * @return message - "워크스페이스에 성공적으로 참가하였습니다."
-   */
   @PostMapping("{workspaceId}/join")
+  @Operation(summary = "워크스페이스 가입", description = "특정 워크스페이스에 멤버로 가입합니다.")
   public Api<Void> joinWorkspace(@PathVariable("workspaceId") UUID workspaceId,
       @Valid @RequestBody WorkspaceMemberRequest request, @CurrentUser JwtPayload user) {
     workspaceMemberService.joinWorkspace(workspaceId, request, user.getId());
     return Api.OK(ResponseMessage.JOIN_WORKSPACE_SUCCESS);
   }
 
-  /**
-   * 워크스페이스 멤버 권한 변경
-   * 
-   * @param UUID workspaceId, UUID memberId, UUID userId
-   * @return message - "워크스페이스 멤버 권한이 성공적으로 변경되었습니다."
-   */
   @PutMapping("{workspaceId}/member/{memberId}/update")
+  @Operation(summary = "워크스페이스 멤버 정보 수정", description = "특정 워크스페이스 멤버의 정보를 수정합니다.")
   public Api<Void> updateWorkspaceMember(@PathVariable("workspaceId") UUID workspaceId,
       @PathVariable("memberId") UUID memberId, @CurrentUser JwtPayload user) {
     workspaceMemberService.updateWorkspaceMember(workspaceId, memberId, user.getId());
     return Api.OK(ResponseMessage.UPDATE_WORKSPACE_MEMBER_SUCCESS);
   }
 
-  /**
-   * 워크스페이스 멤버 추방
-   * 
-   * @param UUID workspaceId, UUID memberId, UUID userId
-   * @return message - "워크스페이스 멤버가 성공적으로 추방되었습니다."
-   */
   @DeleteMapping("{workspaceId}/member/{memberId}/delete")
+  @Operation(summary = "워크스페이스 멤버 추방", description = "특정 워크스페이스 멤버를 추방합니다.")
   public Api<Void> removeWorkspaceMember(@PathVariable("workspaceId") UUID workspaceId,
       @PathVariable("memberId") UUID memberId, @CurrentUser JwtPayload user) {
     workspaceMemberService.removeWorkspaceMember(workspaceId, memberId, user.getId());

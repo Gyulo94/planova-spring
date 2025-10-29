@@ -10,6 +10,7 @@ import com.planova.server.user.response.UserResponse;
 import com.planova.server.workspaceMember.entity.WorkspaceMember;
 import com.planova.server.workspaceMember.entity.WorkspaceMemberRole;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,9 +22,13 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@Schema(title = "WORKSPACE_MEMBER_RES_02 : 워크스페이스 멤버 정보 응답 DTO")
 public class WorkspaceMemberInfoResponse extends UserResponse {
 
+  @Schema(description = "워크스페이스 멤버 역할", example = "ADMIN || MEMBER")
   private WorkspaceMemberRole role;
+
+  @Schema(description = "워크스페이스 가입 일시", example = "2023-10-05T14:48:00")
   private LocalDateTime joinedAt;
 
   public static WorkspaceMemberInfoResponse fromEntity(WorkspaceMember workspaceMember, User user,

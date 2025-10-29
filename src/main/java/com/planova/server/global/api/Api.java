@@ -11,6 +11,7 @@ import com.planova.server.global.error.ErrorCode;
 import com.planova.server.global.error.ErrorCodeInterface;
 import com.planova.server.global.message.ResponseMessageInterface;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,11 +20,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Api<T> {
 
+  @Schema(description = "HTTP 상태 코드", example = "200")
   private int statusCode;
+
+  @Schema(description = "응답 메시지", example = "요청이 성공적으로 처리되었습니다.")
   private String message;
+
+  @Schema(description = "응답 생성 일시", example = "2023-10-05T14:48:00")
   private String timestamp;
+
+  @Schema(description = "요청 HTTP 메서드", example = "GET")
   private String method;
+
+  @Schema(description = "요청 경로", example = "/api/auth")
   private String path;
+
+  @Schema(description = "응답 바디")
   private T body;
 
   @Builder(toBuilder = true)

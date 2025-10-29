@@ -46,7 +46,11 @@ public class WebSecurityConfig {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
-            .requestMatchers(HttpMethod.GET, "/auth/verify-token").permitAll()
+            .requestMatchers(HttpMethod.GET, "/auth/verify-token", "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/v3/api-docs",
+                "/v3/api-docs/**")
+            .permitAll()
             .anyRequest().authenticated())
         .httpBasic(HttpBasicConfigurer::disable)
         .addFilterBefore(new JwtAuthenticationFilter(jwtProvider, objectMapper),
