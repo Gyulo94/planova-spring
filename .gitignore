@@ -39,5 +39,6 @@ out/
 .env
 .env.*
 application.yml
+application.*.yml
 logback-spring.xml
 /logs

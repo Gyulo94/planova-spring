@@ -25,6 +25,7 @@ import com.planova.server.user.response.UserResponse;
 import com.planova.server.user.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
@@ -33,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("auth")
 @RequiredArgsConstructor
+@SecurityRequirements(value = {})
 @Tag(name = "인증", description = "인증 관련 API")
 public class AuthController {
   Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
