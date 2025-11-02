@@ -81,10 +81,25 @@ public class ProjectServiceImpl implements ProjectService {
     Workspace workspace = project.getWorkspace();
     workspaceService.validateWorkspaceOwner(workspace.getOwner().getId(), userId);
     project.update(request.getName());
-    String existingImage = imageService.findImagesByEntityId(project.getId(), EntityType.PROJECT).get(0).getUrl();
-    String newImage = imageService
-        .updateImages(project.getId(), List.of(request.getImage()), List.of(existingImage), EntityType.PROJECT)
-        .get(0);
+    String newImage = "";
+
+    var existingImages = imageService.findImagesByEntityId(project.getId(), EntityType.PROJECT);
+    String existingImage = (existingImages != null && !existingImages.isEmpty())
+        ? existingImages.get(0).getUrl()
+        : null;
+
+    if (request.getImage() != null && !request.getImage().isEmpty()) {
+      if (existingImage != null) {
+        newImage = imageService
+            .updateImages(project.getId(), List.of(request.getImage()), List.of(existingImage), EntityType.PROJECT)
+            .get(0);
+      } else {
+        newImage = imageService.createImages(project.getId(), List.of(request.getImage()), EntityType.PROJECT)
+            .get(0);
+      }
+    } else {
+      newImage = existingImage != null ? existingImage : "";
+    }
     ProjectResponse response = ProjectResponse.fromEntity(project, newImage);
     return response;
   }
