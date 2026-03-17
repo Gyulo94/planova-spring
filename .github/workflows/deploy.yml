@@ -72,6 +72,7 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/planova-spring
 
             docker run -d --name planova-spring \
+              --network nginx-proxy_gyubuntu_net \
               -p 8002:8000 \
               -v $(pwd)/application.yml:/app/application.yml \
               ${{ secrets.DOCKER_USERNAME }}/planova-spring
