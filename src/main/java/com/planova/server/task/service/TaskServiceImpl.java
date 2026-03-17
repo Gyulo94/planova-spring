@@ -20,7 +20,6 @@ import com.planova.server.project.response.ProjectResponse;
 import com.planova.server.project.service.ProjectService;
 import com.planova.server.task.entity.Task;
 import com.planova.server.task.entity.TaskStatus;
-import com.planova.server.task.repository.TaskQueryRepositoryImpl;
 import com.planova.server.task.repository.TaskRepository;
 import com.planova.server.task.request.TaskBulkRequest;
 import com.planova.server.task.request.TaskFilterRequest;
@@ -47,7 +46,7 @@ public class TaskServiceImpl implements TaskService {
   private final ImageService imageService;
   private final WorkspaceMemberService workspaceMemberService;
   private final WorkspaceService workspaceService;
-  private final Logger LOGGER = LoggerFactory.getLogger(TaskQueryRepositoryImpl.class);
+  private final Logger LOGGER = LoggerFactory.getLogger(TaskServiceImpl.class);
 
   @Transactional
   @Override

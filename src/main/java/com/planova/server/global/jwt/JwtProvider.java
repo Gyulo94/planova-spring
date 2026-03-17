@@ -32,10 +32,10 @@ public class JwtProvider {
   public final long refreshTokenExpiredAt;
 
   public JwtProvider(
-      @Value("${ACCESS_TOKEN_SECRET_KEY}") String accessTokenSecretKey,
-      @Value("${REFRESH_TOKEN_SECRET_KEY}") String refreshTokenSecretKey,
-      @Value("${ACCESS_TOKEN_EXPIRED_AT}") long accessTokenExpiredAt,
-      @Value("${REFRESH_TOKEN_EXPIRED_AT}") long refreshTokenExpiredAt) {
+      @Value("${jwt.access-token-secret-key}") String accessTokenSecretKey,
+      @Value("${jwt.refresh-token-secret-key}") String refreshTokenSecretKey,
+      @Value("${jwt.access-token-expired-at}") long accessTokenExpiredAt,
+      @Value("${jwt.refresh-token-expired-at}") long refreshTokenExpiredAt) {
 
     this.accessTokenSigningKey = getSigningKey(accessTokenSecretKey);
     this.refreshTokenSigningKey = getSigningKey(refreshTokenSecretKey);
